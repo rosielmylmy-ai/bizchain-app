@@ -10,17 +10,17 @@
 /* Layout: phone-shaped app column — sticky top bar, two-column note feed, bottom tab bar; brand data opens as a full sheet */
 :root{
   --bg:#f6f5f2; --surface:#ffffff; --ink:#1b1d24; --muted:#6c6b73; --line:#e6e3dc;
-  --gold:#a8843f; --seal:#c2412d; --chip:#efe9dc; --good:#2f7a4f; --goodbg:#e3f1e8;
+  --gold:#a8843f; --seal:#c2412d; --chip:#efe9dc; --good:#2f7a4f; --goodbg:#e3f1e8; --svc:#2b5ea7; --svcfg:#ffffff;
   --display:"Noto Serif SC","Songti SC",serif;
   --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121317; --surface:#1c1d23; --ink:#ecebe7; --muted:#9a99a2; --line:#2c2d35;
-  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; color-scheme:dark}}
+  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121317; --surface:#1c1d23; --ink:#ecebe7; --muted:#9a99a2; --line:#2c2d35;
-  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; color-scheme:dark}
+  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);padding-inline:0}
 *{box-sizing:border-box}
@@ -151,6 +151,22 @@ main{padding:12px 10px}
 .edav{display:flex;align-items:center;gap:12px;margin-top:-34px;padding-left:12px;position:relative;z-index:1}
 .edav .pick{position:static}.pick.dark{background:var(--ink);color:var(--bg);margin-top:28px}
 .edh{margin:8px 0 0;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
+.vb{display:inline-flex;align-items:center;font-size:10.5px;line-height:1;padding:3px 6px;border-radius:999px;font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap;font-family:var(--body)}
+.vb.brand,.vbi.brand{background:var(--seal);color:#fff}.vb.svc,.vbi.svc{background:var(--svc);color:var(--svcfg)}
+.vbi{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;font-size:8.5px;font-weight:900;margin-left:4px;flex:none}
+.pverified{position:absolute;top:10px;right:10px;background:var(--surface);color:var(--seal);font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.pverified.no{color:var(--muted);font-weight:500}
+.cmts{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}.cmts h4{margin:0 0 10px;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
+.cmt{display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.cav{width:30px;height:30px;border-radius:50%;display:block}.cname{font-size:13px;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap}
+.cmt p{margin:4px 0 0;font-size:14.5px;line-height:1.6}
+.cform{flex-direction:row;gap:8px;margin-top:12px}.cform input{flex:1;min-width:0;border-radius:999px}.cform button{background:var(--seal);color:#fff;border-radius:999px;padding:0 16px;font-weight:500}
+.plans{display:flex;flex-direction:column;gap:8px}
+.plan{background:var(--surface);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--line)}
+.plan b{font-size:15px;display:flex;align-items:center;flex-wrap:wrap;gap:2px}.plan .price{font-size:12.5px;color:var(--gold);font-weight:500}
+.plan ul{margin:4px 0 0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.7}
+.plan.hl{border-color:var(--gold)}
+.rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 .sec{margin-top:18px}
 .sec h4{margin:0 0 8px;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
 .items{background:var(--surface);border-radius:12px;overflow:hidden}
@@ -250,10 +266,18 @@ const SEED_THREADS=[
  {id:"t2",name:"佛州小老板",c:5,time:"昨天",brand:"the-ups-store",msgs:[{me:false,t:"UPS Store在佛州需要做州注册吗？"},{me:true,t:"佛州不是注册州，但有一个简单的豁免备案，品牌方会处理"},{me:false,t:"明白了，谢谢！"}]},
  {id:"t3",name:"某茶饮品牌 · 海外部",c:0,time:"周一",msgs:[{me:false,t:"您好，我们想了解一下进美国做FDD的流程和费用，方便约个视频会吗？"}]}
 ];
-const S={tab:"推荐",nav:"brands",brandCat:"全部",q:"",mine:[],threads:SEED_THREADS,color:0,thread:null,edits:{}};
-try{const d=JSON.parse(localStorage.getItem("bc-mine")||"[]");if(Array.isArray(d))S.mine=d;const t=JSON.parse(localStorage.getItem("bc-threads")||"null");if(Array.isArray(t))S.threads=t;const ed=JSON.parse(localStorage.getItem("bc-brandedits")||"{}");if(ed&&typeof ed==="object")S.edits=ed}catch(e){}
-const persist=()=>{try{localStorage.setItem("bc-mine",JSON.stringify(S.mine));localStorage.setItem("bc-threads",JSON.stringify(S.threads))}catch(e){}try{localStorage.setItem("bc-brandedits",JSON.stringify(S.edits))}catch(e){toast("图片太大，保存失败，换一张小一点的试试")}};
+const S={tab:"推荐",nav:"brands",brandCat:"全部",q:"",mine:[],threads:SEED_THREADS,color:0,thread:null,edits:{},comments:{},me:{name:"女王 · 商链",role:"service",svc:"加盟顾问"}};
+try{const d=JSON.parse(localStorage.getItem("bc-mine")||"[]");if(Array.isArray(d))S.mine=d;const t=JSON.parse(localStorage.getItem("bc-threads")||"null");if(Array.isArray(t))S.threads=t;const ed=JSON.parse(localStorage.getItem("bc-brandedits")||"{}");if(ed&&typeof ed==="object")S.edits=ed;const cm=JSON.parse(localStorage.getItem("bc-comments")||"{}");if(cm&&typeof cm==="object")S.comments=cm;const me=JSON.parse(localStorage.getItem("bc-me")||"null");if(me&&me.role)S.me=Object.assign(S.me,me)}catch(e){}
+const persist=()=>{try{localStorage.setItem("bc-mine",JSON.stringify(S.mine));localStorage.setItem("bc-threads",JSON.stringify(S.threads))}catch(e){}try{localStorage.setItem("bc-comments",JSON.stringify(S.comments));localStorage.setItem("bc-me",JSON.stringify(S.me))}catch(e){}try{localStorage.setItem("bc-brandedits",JSON.stringify(S.edits))}catch(e){toast("图片太大，保存失败，换一张小一点的试试")}};
 const ME="女王 · 商链";
+// Demo accounts for the prototype. Names marked 示例 are not real brand staff.
+const USERS={"女王 · 商链":{role:"service",svc:"加盟顾问"},"王律师 · 加盟法务（示例）":{role:"service",svc:"律师"},"Lisa · 迈阿密商业地产（示例）":{role:"service",svc:"商业地产"},"Paris Baguette 招商（示例）":{role:"brand",brand:"paris-baguette"},"美东开店日记":{role:"user"},"佛州小老板":{role:"user"}};
+const SEED_COMMENTS={
+ p1:[{user:"王律师 · 加盟法务（示例）",text:"补充一点：Item 19 通常只统计按时报送数据的门店，没报送的往往经营得不好，真实的中位数可能更低。签约前一定要拿 FDD 里的加盟商名单去打电话问。"},{user:"美东开店日记",text:"学到了，原来平均数里有这么多讲究"}],
+ p2:[{user:"Lisa · 迈阿密商业地产（示例）",text:"鸡翅店外卖占比高，选址除了看人流，还要看停车位和外卖骑手取餐是否方便。租约里可以争取独立的取餐窗口。"}],
+ p5:[{user:"佛州小老板",text:"我就是开 UPS Store 的，最大的好处是不用管后厨，但旺季很忙"}],
+ p6:[{user:"Paris Baguette 招商（示例）",text:"我们也在寻找各区域的开发伙伴，欢迎私信了解。具体条件以最新 FDD 为准。"}]};
+const SVC_TYPES=["加盟顾问","律师","商业地产","会计","贷款"];
 function threadFor(name,c,brand){let t=S.threads.find(x=>x.name===name);if(!t){t={id:"t"+Date.now(),name,c:c??0,time:"刚刚",msgs:[],brand:brand||null};S.threads.unshift(t)}else if(brand)t.brand=brand;return t}
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -266,7 +290,7 @@ function cardHTML(p){const b=p.brand&&B(p.brand);const h=[150,190,170,210][p.id.
   <div class="cover" style="background:${COLORS[p.c]};min-height:${h}px"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
   <div class="cbody"><div class="ctitle">${esc(p.title)}</div>
   ${b?`<span class="bchip">${esc(b.name)} · 加盟费 <b>${esc(b.fee.split("（")[0])}</b></span>`:""}
-  <div class="meta"><span class="av"><i style="background:${COLORS[(p.user.length)%6]}"></i><span>${esc(p.user)}</span></span><span>♡ ${p.likes}</span></div></div></button>`}
+  <div class="meta"><span class="av"><i style="background:${COLORS[(p.user.length)%6]}"></i><span>${esc(p.user)}</span>${badge(p.user,true)}</span><span>♡ ${p.likes}</span></div></div></button>`}
 
 function renderTabs(){const t=["推荐","投资人","品牌方","法规"];
  $("#feedTabs").innerHTML=t.map(x=>`<button aria-pressed="${S.tab===x}" data-tab="${x}">${x}</button>`).join("");
@@ -286,9 +310,25 @@ function render(){renderTabs();
   <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}">${avHTML(b)}<span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)}</p></span><span class="fig">${esc(b.fee)}<small>加盟费</small></span></button>`).join("")||`<div class="empty">${q?"没有匹配的品牌":"「"+esc(S.brandCat)+"」还没有收录品牌"}</div>`}</div>
   <p class="note">数据来源：威斯康星州 DFI 备案的 2026 年 FDD · 已收录 ${BRANDS.length} 个品牌</p>`;setupFilters()}
  else if(S.nav==="msgs"){let list=S.threads;if(q)list=list.filter(t=>(t.name+t.msgs.map(m=>m.t).join("")).toLowerCase().includes(q));
-  v.innerHTML=list.length?`<div class="tlist">${list.map(t=>{const last=t.msgs[t.msgs.length-1];return `<button class="trow" data-thread="${t.id}"><span class="ava" style="background:${COLORS[t.c]}">${esc(t.name[0])}</span><span><b>${esc(t.name)}</b>${t.unread?'<i class="dot" aria-label="未读"></i>':""}<p>${last?(last.me?"我：":"")+esc(last.t):(t.brand?"咨询 "+esc(B(t.brand).name):"还没有消息")}</p></span><time>${esc(t.time)}</time></button>`}).join("")}</div><p class="note">原型示例对话 · 消息目前只保存在本机浏览器</p>`:`<div class="empty">还没有私信。在笔记或品牌页点「私信」就能发起对话。</div>`}
- else if(S.nav==="me"){v.innerHTML=`<div class="me"><h2>女王</h2><span style="color:var(--muted);font-size:13px">商链 BizChain · 美中跨境特许经营</span><span style="font-size:13px">已发布 ${S.mine.length} 篇 · 私信 ${S.threads.length} 个</span></div>
-  ${S.mine.length?`<div class="feed">${S.mine.map(cardHTML).join("")}</div>`:`<div class="empty">你还没有发布笔记，点底部「+」写第一篇。</div>`}`}
+  v.innerHTML=list.length?`<div class="tlist">${list.map(t=>{const last=t.msgs[t.msgs.length-1];return `<button class="trow" data-thread="${t.id}"><span class="ava" style="background:${COLORS[t.c]}">${esc(t.name[0])}</span><span><b>${esc(t.name)}</b>${badge(t.name,true)}${t.unread?'<i class="dot" aria-label="未读"></i>':""}<p>${last?(last.me?"我：":"")+esc(last.t):(t.brand?"咨询 "+esc(B(t.brand).name):"还没有消息")}</p></span><time>${esc(t.time)}</time></button>`}).join("")}</div><p class="note">原型示例对话 · 消息目前只保存在本机浏览器</p>`:`<div class="empty">还没有私信。在笔记或品牌页点「私信」就能发起对话。</div>`}
+ else if(S.nav==="me"){const me=S.me,mb=me.brand&&B(me.brand);
+  v.innerHTML=`<div class="me"><h2>${esc(me.name)}${badge(me.name)}</h2><span style="color:var(--muted);font-size:13px">${me.role==="brand"?`${esc(mb?mb.name:"")} 认证品牌方`:me.role==="service"?`认证服务方 · ${esc(me.svc)}`:"普通用户"}</span><span style="font-size:13px">已发布 ${S.mine.length} 篇 · 私信 ${S.threads.length} 个</span></div>
+  <h4 class="edh" style="margin:16px 4px 8px">认证与会员</h4>
+  <div class="plans">
+   <div class="plan"><b>普通用户</b><span class="price">免费</span><ul><li>查品牌、看 FDD 数据</li><li>发笔记、评论、私信</li></ul></div>
+   <div class="plan hl"><b>品牌方认证 <span class="vb brand">✓ 品牌认证</span></b><span class="price">按月订阅 · 价格待定</span><ul><li>品牌主页显示认证标志</li><li>编辑头像、背景、简介和品牌理念</li><li>评论和私信时显示认证身份</li></ul></div>
+   <div class="plan hl"><b>服务方认证 <span class="vb svc">✓ 律师 / 商业地产 …</span></b><span class="price">按月订阅 · 价格待定</span><ul><li>律师、商业地产、会计、贷款、加盟顾问</li><li>评论和私信时显示认证身份</li><li>进入服务方名录，接收投资人咨询</li></ul></div>
+  </div>
+  <p class="warn">正式上线后，品牌方需提交公司文件和商标证明，服务方需提交执照（如律师执照、地产经纪执照），审核通过后显示认证标志。</p>
+  <h4 class="edh" style="margin:16px 4px 8px">切换身份（演示用）</h4>
+  <label class="rolepick">当前身份<select id="rolesel">
+   <option value="user" ${me.role==="user"?"selected":""}>普通用户</option>
+   <optgroup label="服务方">${SVC_TYPES.map(t=>`<option value="service:${t}" ${me.role==="service"&&me.svc===t?"selected":""}>${t}</option>`).join("")}</optgroup>
+   <optgroup label="品牌方">${BRANDS.map(x=>`<option value="brand:${x.id}" ${me.role==="brand"&&me.brand===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}</optgroup>
+  </select></label>
+  <h4 class="edh" style="margin:16px 4px 8px">我的笔记</h4>
+  ${S.mine.length?`<div class="feed">${S.mine.map(cardHTML).join("")}</div>`:`<div class="empty">你还没有发布笔记，点底部「+」写第一篇。</div>`}`;
+  $("#rolesel").addEventListener("change",e=>{const [r,x]=e.target.value.split(":");S.me.role=r;S.me.svc=r==="service"?x:undefined;S.me.brand=r==="brand"?x:undefined;persist();render();toast(r==="brand"?`已切换为 ${B(x).name} 品牌方`:r==="service"?`已切换为服务方 · ${x}`:"已切换为普通用户")})}
 }
 
 function openSheet(html){$("#sheetIn").innerHTML=html;$("#sheet").hidden=false;$("#sheet").scrollTop=0}
@@ -305,12 +345,18 @@ function setupFilters(){const f=$("#filters");if(!f)return;f.scrollLeft=filterPo
 function closeSheet(){$("#sheet").hidden=true;S.thread=null}
 
 function openThread(id){const t=S.threads.find(x=>x.id===id);if(!t)return;t.unread=false;persist();S.thread=id;const b=t.brand&&B(t.brand);
- openSheet(`<div class="sbar"><button class="back" data-close>‹ 私信</button><b style="font-size:15px">${esc(t.name)}</b><span style="width:48px"></span></div>
+ openSheet(`<div class="sbar"><button class="back" data-close>‹ 私信</button><b style="font-size:15px">${esc(t.name)}${badge(t.name,true)}</b><span style="width:48px"></span></div>
  <div class="chat" id="chat">${b?`<span class="ctx">对方在看这个品牌</span><button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)}</small></span><span class="go">FDD ›</span></button>`:""}
  ${t.msgs.length?t.msgs.map(m=>`<div class="bub ${m.me?"me":"them"}">${esc(m.t)}</div>`).join(""):`<span class="ctx">打个招呼吧</span>`}</div>
  <div class="composer"><form id="mf"><input type="text" id="mi" placeholder="发消息…" aria-label="消息" autocomplete="off" required><button type="submit">发送</button></form></div>`);
  $("#sheet").scrollTop=$("#sheet").scrollHeight}
 
+function who(name){return name===S.me.name?S.me:(USERS[name]||{role:"user"})}
+function badge(name,small){const u=who(name);if(u.role==="brand")return small?`<span class="vbi brand" title="品牌认证" aria-label="品牌认证">✓</span>`:`<span class="vb brand">✓ 品牌认证</span>`;
+ if(u.role==="service")return small?`<span class="vbi svc" title="${esc(u.svc)}认证" aria-label="${esc(u.svc)}认证">✓</span>`:`<span class="vb svc">✓ ${esc(u.svc)}</span>`;return ""}
+function brandVerified(id){return Object.values(USERS).some(u=>u.role==="brand"&&u.brand===id)||(S.me.role==="brand"&&S.me.brand===id)||!!S.edits[id]}
+function canEdit(id){return S.me.role==="brand"&&S.me.brand===id}
+function commentsFor(pid){return [...(SEED_COMMENTS[pid]||[]),...(S.comments[pid]||[])]}
 function avHTML(b,cls="mono"){const x=B(b.id)||b;return x.avatar?`<span class="${cls} avimg" style="background-image:url('${x.avatar}')" role="img" aria-label="${esc(x.name)} 头像"></span>`:`<span class="${cls}" style="background:${COLORS[x.c]}">${esc(x.name[0])}</span>`}
 function lowInvest(v){const m=String(v).match(/\$[\d,]+/);if(!m)return "—";const n=+m[0].replace(/[$,]/g,"");return n>=10000?"$"+Math.round(n/10000)+"万":m[0]}
 function trendHTML(b){const t=b.units_trend;if(!t)return `<p class="warn">暂无数据</p>`;const ys=Object.keys(t),vs=ys.map(y=>t[y]),mx=Math.max(...vs);const d=vs[3]-vs[2],pct=vs[2]?Math.round(d/vs[2]*1000)/10:0;
@@ -332,7 +378,7 @@ function revHTML(b){const d=b.item19_detail;
  if(d.dist){const mx=Math.max(...d.dist.map(x=>x[1]));h+=`<h5 class="gt">${esc(d.group_title)}</h5><div class="dist">${d.dist.map(([l,n])=>`<div class="drow"><span class="dl">${esc(l)}</span><span class="db"><i style="width:${Math.max(2,n/mx*100)}%"></i></span><span class="dn">${n}</span></div>`).join("")}</div>`}
  return h+`<p class="warn">以上是营业额，不是利润。租金、人工、食材和加盟费都还没扣。</p>`}
 function ideaHTML(b){const ph=b.philosophy;
- if(!ph||!(ph.mission||ph.story||(ph.values&&ph.values.length)))return `<div class="ideaempty"><b>${esc(b.name)} 还没有填写品牌理念</b><p>品牌入驻商链后，可以在这里讲品牌故事、使命和价值观，让投资人了解品牌想找什么样的合作伙伴。</p><button class="dm" data-bedit="${b.id}">我是品牌方，去填写</button></div>`;
+ if(!ph||!(ph.mission||ph.story||(ph.values&&ph.values.length)))return `<div class="ideaempty"><b>${esc(b.name)} 还没有填写品牌理念</b><p>品牌入驻商链后，可以在这里讲品牌故事、使命和价值观，让投资人了解品牌想找什么样的合作伙伴。</p><button class="dm" data-bclaim="${b.id}">我是品牌方，去填写</button></div>`;
  return `<div class="idea">${ph.mission?`<blockquote>${esc(ph.mission)}</blockquote>`:""}${ph.values&&ph.values.length?`<div class="vals">${ph.values.map(v=>`<span>${esc(v)}</span>`).join("")}</div>`:""}${ph.story?`<div class="story">${esc(ph.story)}</div>`:""}<p class="byb">由品牌方填写</p></div>`}
 function shrink(file,w,h,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=w;c.height=h;const k=Math.max(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;c.getContext("2d").drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);cb(c.toDataURL("image/jpeg",.82))};im.onerror=()=>toast("这张图片打不开，换一张试试");im.src=r.result};r.readAsDataURL(file)}
 function openBrandEdit(id){const b=B(id),ph=b.philosophy||{};S.draft={avatar:b.avatar||"",cover:b.cover||""};
@@ -356,10 +402,10 @@ function openBrand(id){const b=B(id);const rel=posts().filter(p=>p.brand===id);
  const rows=[["ITEM 5","初始加盟费","一次性",b.fee],["ITEM 6","特许权使用费","按营收",b.royalty],["ITEM 6","广告/品牌基金","按营收",b.ad],["ITEM 7","初始投资总额",b.program,b.invest],["ITEM 7","其中付给总部","",b.to_franchisor],["ITEM 20","门店数量",b.units_as_of,b.units],["ITEM 17","合同期限","",b.term]];
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button><span style="font-size:12px;color:var(--muted)">品牌档案</span></div>
  <section class="prof">
-  <div class="pcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}"><button class="pedit" data-bedit="${b.id}">品牌方编辑</button></div>
+  <div class="pcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}">${brandVerified(b.id)?`<span class="pverified">✓ 品牌认证</span>`:`<span class="pverified no">未认证</span>`}</div>
   <div class="prow">${avHTML(b,"pav")}
    <div class="pid"><h2>${esc(b.name)}</h2><p>${esc(b.cn)} · ${esc(b.cat)}</p></div>
-   <button class="follow" data-toast="已关注 ${esc(b.name)}">+ 关注</button></div>
+   ${canEdit(b.id)?`<button class="follow" data-bedit="${b.id}">编辑主页</button>`:`<button class="follow" data-toast="已关注 ${esc(b.name)}">+ 关注</button>`}</div>
   <div class="pstats"><div><b>${esc(b.units)}</b><span>门店</span></div><div><b>${esc(b.fee.split("（")[0])}</b><span>加盟费</span></div><div><b>${esc(lowInvest(b.invest))}</b><span>投资起步</span></div><div><b>${esc(b.royalty.split("（")[0])}</b><span>权利金</span></div></div>
   <div class="pbio" id="pbio"><b>${esc(b.tagline)}</b><br>${esc(b.bio)}</div>
   <button class="more" data-bio aria-expanded="false" aria-controls="pbio">展开</button>
@@ -380,9 +426,12 @@ function openBrand(id){const b=B(id);const rel=posts().filter(p=>p.brand===id);
 function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button>${p.user!==ME?`<button class="dm" data-dm="${id}">私信作者</button>`:""}</div>
  <article class="post"><div class="cover bigcover" style="background:${COLORS[p.c]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
- <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av"><i style="background:${COLORS[p.user.length%6]}"></i><span>${esc(p.user)}</span></span><span>♡ ${p.likes}</span></div>
+ <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av"><i style="background:${COLORS[p.user.length%6]}"></i><span>${esc(p.user)}</span>${badge(p.user)}</span><span>♡ ${p.likes}</span></div>
  <div class="txt">${esc(p.body)}</div>
- ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>`)}
+ ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>
+ <section class="cmts"><h4>评论 · ${commentsFor(id).length}</h4>${commentsFor(id).map(c=>`<div class="cmt"><i class="cav" style="background:${COLORS[c.user.length%6]}"></i><div><div class="cname">${esc(c.user)}${badge(c.user)}</div><p>${esc(c.text)}</p></div></div>`).join("")||`<p class="warn">还没有评论，来说两句</p>`}
+ <form id="cmf" data-pid="${id}" class="cform"><input type="text" id="cmi" maxlength="300" placeholder="以「${esc(S.me.name)}」身份评论" aria-label="写评论" autocomplete="off" required><button type="submit">发送</button></form>
+ ${S.me.role==="user"?`<p class="warn">认证的品牌方和服务方，评论时会显示认证标志。</p>`:""}</section>`)}
 
 function openCompose(pre){S.color=pre?B(pre).c:0;
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 取消</button><span style="font-size:12px;color:var(--muted)">发布笔记</span></div>
@@ -395,7 +444,9 @@ function openCompose(pre){S.color=pre?B(pre).c:0;
  <button class="submit" type="submit">发布</button></form>`)}
 
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
- if(d.bedit){openBrandEdit(d.bedit);return}
+ if(d.bedit){if(canEdit(d.bedit))openBrandEdit(d.bedit);else toast("只有认证的品牌方可以编辑");return}
+ if(d.bclaim){if(canEdit(d.bclaim)){openBrandEdit(d.bclaim)}else{closeSheet();S.nav="me";render();toast("先完成品牌认证，才能编辑品牌主页")}return}
+ if(d.role!==undefined&&t.matches(".rolebtn")){return}
  if(d.breset){delete S.edits[d.breset];persist();openBrand(d.breset);render();toast("已恢复默认");return}
  if(d.btab){document.querySelectorAll("[data-btab]").forEach(x=>x.setAttribute("aria-selected",x===t));document.querySelectorAll("[data-panel]").forEach(x=>x.hidden=x.dataset.panel!==d.btab);return}
  if(d.fscroll){const f=$("#filters");f.scrollBy({left:+d.fscroll*220,behavior:"smooth"});return}
@@ -415,6 +466,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
 document.addEventListener("submit",e=>{if(e.target.id==="bef"){e.preventDefault();const id=e.target.dataset.id;
   S.edits[id]={avatar:S.draft.avatar||undefined,cover:S.draft.cover||undefined,tagline:$("#etag").value.trim(),bio:$("#ebio").value.trim(),philosophy:{mission:$("#emis").value.trim(),values:$("#eval").value.split("\n").map(x=>x.trim()).filter(Boolean),story:$("#esto").value.trim()}};
   persist();render();openBrand(id);toast("已保存");return}
+ if(e.target.id==="cmf"){e.preventDefault();const pid=e.target.dataset.pid,v=$("#cmi").value.trim();if(!v)return;(S.comments[pid]=S.comments[pid]||[]).push({user:S.me.name,text:v});persist();openPost(pid);render();$("#sheet").scrollTop=$("#sheet").scrollHeight;return}
  if(e.target.id==="mf"){e.preventDefault();const t=S.threads.find(x=>x.id===S.thread),v=$("#mi").value.trim();if(!t||!v)return;
   t.msgs.push({me:true,t:v});t.time="刚刚";S.threads=[t,...S.threads.filter(x=>x!==t)];persist();render();openThread(t.id);$("#mi").focus();return}
  if(e.target.id!=="cf")return;e.preventDefault();
