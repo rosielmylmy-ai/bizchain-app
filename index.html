@@ -131,6 +131,26 @@ main{padding:12px 10px}
 .drow{display:grid;grid-template-columns:78px 1fr 34px;gap:8px;align-items:center;font-size:12.5px}
 .db{height:10px;background:var(--chip);border-radius:3px;overflow:hidden}.db i{display:block;height:100%;background:var(--gold)}
 .dn{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.prof{padding:0 0 16px;overflow:hidden}
+.prof>*:not(.pcover){margin-inline:16px}
+.pcover{height:110px;background-size:cover;background-position:center;position:relative;margin:0}
+.pedit{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.42);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px}
+.prof .prow{margin-top:-6px;align-items:end}
+.prof .prow .pav{margin-top:-34px;position:relative;z-index:1}
+.prof .prow .pid,.prof .prow .follow{padding-bottom:2px}
+.pav{border:3px solid var(--surface);box-sizing:content-box}
+.avimg{background-size:cover;background-position:center;color:transparent}
+.idea{background:var(--surface);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.idea blockquote{margin:0;font-family:var(--display);font-weight:900;font-size:19px;line-height:1.45;text-wrap:balance;border-left:3px solid var(--seal);padding-left:12px}
+.vals{display:flex;flex-wrap:wrap;gap:6px}.vals span{background:var(--chip);color:var(--gold);font-size:13px;padding:4px 10px;border-radius:999px}
+.story{font-size:14.5px;line-height:1.8;white-space:pre-wrap}.byb{margin:0;font-size:11.5px;color:var(--muted)}
+.ideaempty{background:var(--surface);border-radius:12px;padding:20px 16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.ideaempty p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.6}.ideaempty .dm{margin-top:4px}
+.edcover{height:120px;border-radius:12px;background-size:cover;background-position:center;position:relative}
+.pick{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.5);color:#fff;font-size:12.5px;padding:5px 12px;border-radius:999px;cursor:pointer;flex-direction:row}
+.edav{display:flex;align-items:center;gap:12px;margin-top:-34px;padding-left:12px;position:relative;z-index:1}
+.edav .pick{position:static}.pick.dark{background:var(--ink);color:var(--bg);margin-top:28px}
+.edh{margin:8px 0 0;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
 .sec{margin-top:18px}
 .sec h4{margin:0 0 8px;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
 .items{background:var(--surface);border-radius:12px;overflow:hidden}
@@ -230,14 +250,14 @@ const SEED_THREADS=[
  {id:"t2",name:"佛州小老板",c:5,time:"昨天",brand:"the-ups-store",msgs:[{me:false,t:"UPS Store在佛州需要做州注册吗？"},{me:true,t:"佛州不是注册州，但有一个简单的豁免备案，品牌方会处理"},{me:false,t:"明白了，谢谢！"}]},
  {id:"t3",name:"某茶饮品牌 · 海外部",c:0,time:"周一",msgs:[{me:false,t:"您好，我们想了解一下进美国做FDD的流程和费用，方便约个视频会吗？"}]}
 ];
-const S={tab:"推荐",nav:"brands",brandCat:"全部",q:"",mine:[],threads:SEED_THREADS,color:0,thread:null};
-try{const d=JSON.parse(localStorage.getItem("bc-mine")||"[]");if(Array.isArray(d))S.mine=d;const t=JSON.parse(localStorage.getItem("bc-threads")||"null");if(Array.isArray(t))S.threads=t}catch(e){}
-const persist=()=>{try{localStorage.setItem("bc-mine",JSON.stringify(S.mine));localStorage.setItem("bc-threads",JSON.stringify(S.threads))}catch(e){}};
+const S={tab:"推荐",nav:"brands",brandCat:"全部",q:"",mine:[],threads:SEED_THREADS,color:0,thread:null,edits:{}};
+try{const d=JSON.parse(localStorage.getItem("bc-mine")||"[]");if(Array.isArray(d))S.mine=d;const t=JSON.parse(localStorage.getItem("bc-threads")||"null");if(Array.isArray(t))S.threads=t;const ed=JSON.parse(localStorage.getItem("bc-brandedits")||"{}");if(ed&&typeof ed==="object")S.edits=ed}catch(e){}
+const persist=()=>{try{localStorage.setItem("bc-mine",JSON.stringify(S.mine));localStorage.setItem("bc-threads",JSON.stringify(S.threads))}catch(e){}try{localStorage.setItem("bc-brandedits",JSON.stringify(S.edits))}catch(e){toast("图片太大，保存失败，换一张小一点的试试")}};
 const ME="女王 · 商链";
 function threadFor(name,c,brand){let t=S.threads.find(x=>x.name===name);if(!t){t={id:"t"+Date.now(),name,c:c??0,time:"刚刚",msgs:[],brand:brand||null};S.threads.unshift(t)}else if(brand)t.brand=brand;return t}
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
-const B=id=>BRANDS.find(b=>b.id===id);
+const B=id=>{const b=BRANDS.find(x=>x.id===id);return b&&S.edits&&S.edits[id]?Object.assign({},b,S.edits[id]):b};
 const posts=()=>[...S.mine,...SEED];
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1800)}
 
@@ -263,7 +283,7 @@ function render(){renderTabs();
   let list=BRANDS.filter(b=>S.brandCat==="全部"||b.cat===S.brandCat);
   if(q)list=list.filter(b=>(b.name+b.cn).toLowerCase().includes(q));
   v.innerHTML=`<div class="fwrap"><button class="farrow l" data-fscroll="-1" aria-label="向左滑" hidden>‹</button><div class="filters" id="filters" role="group" aria-label="行业分类">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${S.brandCat===c}">${c}<small>${n(c)}</small></button>`).join("")}</div><button class="farrow r" data-fscroll="1" aria-label="向右滑">›</button></div>
-  <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}"><span class="mono" style="background:${COLORS[b.c]}">${esc(b.name[0])}</span><span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)}</p></span><span class="fig">${esc(b.fee)}<small>加盟费</small></span></button>`).join("")||`<div class="empty">${q?"没有匹配的品牌":"「"+esc(S.brandCat)+"」还没有收录品牌"}</div>`}</div>
+  <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}">${avHTML(b)}<span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)}</p></span><span class="fig">${esc(b.fee)}<small>加盟费</small></span></button>`).join("")||`<div class="empty">${q?"没有匹配的品牌":"「"+esc(S.brandCat)+"」还没有收录品牌"}</div>`}</div>
   <p class="note">数据来源：威斯康星州 DFI 备案的 2026 年 FDD · 已收录 ${BRANDS.length} 个品牌</p>`;setupFilters()}
  else if(S.nav==="msgs"){let list=S.threads;if(q)list=list.filter(t=>(t.name+t.msgs.map(m=>m.t).join("")).toLowerCase().includes(q));
   v.innerHTML=list.length?`<div class="tlist">${list.map(t=>{const last=t.msgs[t.msgs.length-1];return `<button class="trow" data-thread="${t.id}"><span class="ava" style="background:${COLORS[t.c]}">${esc(t.name[0])}</span><span><b>${esc(t.name)}</b>${t.unread?'<i class="dot" aria-label="未读"></i>':""}<p>${last?(last.me?"我：":"")+esc(last.t):(t.brand?"咨询 "+esc(B(t.brand).name):"还没有消息")}</p></span><time>${esc(t.time)}</time></button>`}).join("")}</div><p class="note">原型示例对话 · 消息目前只保存在本机浏览器</p>`:`<div class="empty">还没有私信。在笔记或品牌页点「私信」就能发起对话。</div>`}
@@ -286,16 +306,17 @@ function closeSheet(){$("#sheet").hidden=true;S.thread=null}
 
 function openThread(id){const t=S.threads.find(x=>x.id===id);if(!t)return;t.unread=false;persist();S.thread=id;const b=t.brand&&B(t.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 私信</button><b style="font-size:15px">${esc(t.name)}</b><span style="width:48px"></span></div>
- <div class="chat" id="chat">${b?`<span class="ctx">对方在看这个品牌</span><button class="linkcard" data-brand="${b.id}"><span class="mono" style="background:${COLORS[b.c]}">${esc(b.name[0])}</span><span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)}</small></span><span class="go">FDD ›</span></button>`:""}
+ <div class="chat" id="chat">${b?`<span class="ctx">对方在看这个品牌</span><button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)}</small></span><span class="go">FDD ›</span></button>`:""}
  ${t.msgs.length?t.msgs.map(m=>`<div class="bub ${m.me?"me":"them"}">${esc(m.t)}</div>`).join(""):`<span class="ctx">打个招呼吧</span>`}</div>
  <div class="composer"><form id="mf"><input type="text" id="mi" placeholder="发消息…" aria-label="消息" autocomplete="off" required><button type="submit">发送</button></form></div>`);
  $("#sheet").scrollTop=$("#sheet").scrollHeight}
 
+function avHTML(b,cls="mono"){const x=B(b.id)||b;return x.avatar?`<span class="${cls} avimg" style="background-image:url('${x.avatar}')" role="img" aria-label="${esc(x.name)} 头像"></span>`:`<span class="${cls}" style="background:${COLORS[x.c]}">${esc(x.name[0])}</span>`}
 function lowInvest(v){const m=String(v).match(/\$[\d,]+/);if(!m)return "—";const n=+m[0].replace(/[$,]/g,"");return n>=10000?"$"+Math.round(n/10000)+"万":m[0]}
 function trendHTML(b){const t=b.units_trend;if(!t)return `<p class="warn">暂无数据</p>`;const ys=Object.keys(t),vs=ys.map(y=>t[y]),mx=Math.max(...vs);const d=vs[3]-vs[2],pct=vs[2]?Math.round(d/vs[2]*1000)/10:0;
  return `<div class="trend"><div class="bars">${ys.map((y,i)=>`<div class="bar"><span class="bv">${vs[i].toLocaleString()}</span><i style="height:${Math.max(6,Math.round(vs[i]/mx*72))}px"></i><span class="by">${y}</span></div>`).join("")}</div><p class="tsum ${d>=0?"up":"down"}">2025 年净${d>=0?"增加":"减少"} <b>${Math.abs(d).toLocaleString()}</b> 家（${d>=0?"+":""}${pct}%）</p></div><p class="warn">年底门店总数，含加盟店和直营店。</p>`}
 function simHTML(b){const list=BRANDS.filter(x=>x.cat===b.cat&&x.id!==b.id).slice(0,4);if(!list.length)return `<p class="warn">这个分类还没有其他品牌</p>`;
- return `<div class="sim">${list.map(x=>`<button class="simc" data-brand="${x.id}"><span class="mono" style="background:${COLORS[x.c]}">${esc(x.name[0])}</span><b>${esc(x.name)}</b><span>加盟费 ${esc(x.fee.split("（")[0])}</span><span>投资起步 ${esc(lowInvest(x.invest))}</span><span>门店 ${esc(x.units)}</span></button>`).join("")}</div>`}
+ return `<div class="sim">${list.map(x=>`<button class="simc" data-brand="${x.id}">${avHTML(x)}<b>${esc(x.name)}</b><span>加盟费 ${esc(x.fee.split("（")[0])}</span><span>投资起步 ${esc(lowInvest(x.invest))}</span><span>门店 ${esc(x.units)}</span></button>`).join("")}</div>`}
 function wan(n){if(n==null)return "—";return "$"+(n>=1e6?(n/1e4).toFixed(0):(n/1e4).toFixed(1))+"万"}
 function full(n){return n==null?"":"$"+n.toLocaleString("en-US")}
 function revHTML(b){const d=b.item19_detail;
@@ -310,11 +331,33 @@ function revHTML(b){const d=b.item19_detail;
  if(d.groups&&d.groups.length){h+=`<h5 class="gt">${esc(d.group_title)}</h5><div class="items grp">${d.groups.map(g=>`<div class="item"><div class="ihead"><span class="lab">${esc(g.label)}${g.n?` · ${g.n.toLocaleString()} 家`:""}</span><span class="no">中位 ${wan(g.median)}</span></div><div class="val">平均 ${wan(g.avg)}</div><small class="isub">区间 ${wan(g.low)} – ${wan(g.high)}</small></div>`).join("")}</div>`}
  if(d.dist){const mx=Math.max(...d.dist.map(x=>x[1]));h+=`<h5 class="gt">${esc(d.group_title)}</h5><div class="dist">${d.dist.map(([l,n])=>`<div class="drow"><span class="dl">${esc(l)}</span><span class="db"><i style="width:${Math.max(2,n/mx*100)}%"></i></span><span class="dn">${n}</span></div>`).join("")}</div>`}
  return h+`<p class="warn">以上是营业额，不是利润。租金、人工、食材和加盟费都还没扣。</p>`}
+function ideaHTML(b){const ph=b.philosophy;
+ if(!ph||!(ph.mission||ph.story||(ph.values&&ph.values.length)))return `<div class="ideaempty"><b>${esc(b.name)} 还没有填写品牌理念</b><p>品牌入驻商链后，可以在这里讲品牌故事、使命和价值观，让投资人了解品牌想找什么样的合作伙伴。</p><button class="dm" data-bedit="${b.id}">我是品牌方，去填写</button></div>`;
+ return `<div class="idea">${ph.mission?`<blockquote>${esc(ph.mission)}</blockquote>`:""}${ph.values&&ph.values.length?`<div class="vals">${ph.values.map(v=>`<span>${esc(v)}</span>`).join("")}</div>`:""}${ph.story?`<div class="story">${esc(ph.story)}</div>`:""}<p class="byb">由品牌方填写</p></div>`}
+function shrink(file,w,h,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=w;c.height=h;const k=Math.max(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;c.getContext("2d").drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);cb(c.toDataURL("image/jpeg",.82))};im.onerror=()=>toast("这张图片打不开，换一张试试");im.src=r.result};r.readAsDataURL(file)}
+function openBrandEdit(id){const b=B(id),ph=b.philosophy||{};S.draft={avatar:b.avatar||"",cover:b.cover||""};
+ openSheet(`<div class="sbar"><button class="back" data-brand="${id}">‹ 取消</button><span style="font-size:12px;color:var(--muted)">编辑品牌主页</span></div>
+ <form id="bef" data-id="${id}">
+ <div class="edcover" id="edcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}"><label class="pick">更换背景<input type="file" id="fcov" accept="image/*" hidden></label></div>
+ <div class="edav"><span id="edav">${avHTML(b,"pav")}</span><label class="pick dark">更换头像<input type="file" id="fav" accept="image/*" hidden></label></div>
+ <label>一句话介绍<input type="text" id="etag" maxlength="30" value="${esc(b.tagline||"")}"></label>
+ <label>品牌简介<textarea id="ebio" maxlength="400">${esc(b.bio||"")}</textarea></label>
+ <h4 class="edh">品牌理念</h4>
+ <label>品牌使命（一句话）<input type="text" id="emis" maxlength="60" placeholder="比如：让每个社区都有一家值得信赖的店" value="${esc(ph.mission||"")}"></label>
+ <label>核心价值观（每行一个）<textarea id="eval" style="min-height:90px" placeholder="品质第一\n用心服务\n和加盟商共同成长">${esc((ph.values||[]).join("\n"))}</textarea></label>
+ <label>品牌故事<textarea id="esto" maxlength="1500" placeholder="品牌是怎么开始的、为什么做这件事、想找什么样的加盟伙伴">${esc(ph.story||"")}</textarea></label>
+ <button class="submit" type="submit">保存</button>
+ <button class="dm" type="button" data-breset="${id}" style="padding:10px;border-radius:10px">恢复默认</button>
+ <p class="warn">演示版：修改只保存在这台设备上。正式版里，品牌方要先注册并验证身份，才能编辑自己的主页；FDD 数据仍以官方备案为准，品牌方不能修改。</p>
+ </form>`);
+ $("#fav").addEventListener("change",e=>{const f=e.target.files[0];if(f)shrink(f,256,256,u=>{S.draft.avatar=u;$("#edav").innerHTML=`<span class="pav avimg" style="background-image:url('${u}')"></span>`})});
+ $("#fcov").addEventListener("change",e=>{const f=e.target.files[0];if(f)shrink(f,1080,400,u=>{S.draft.cover=u;$("#edcover").style.background="";$("#edcover").style.backgroundImage=`url('${u}')`})})}
 function openBrand(id){const b=B(id);const rel=posts().filter(p=>p.brand===id);
  const rows=[["ITEM 5","初始加盟费","一次性",b.fee],["ITEM 6","特许权使用费","按营收",b.royalty],["ITEM 6","广告/品牌基金","按营收",b.ad],["ITEM 7","初始投资总额",b.program,b.invest],["ITEM 7","其中付给总部","",b.to_franchisor],["ITEM 20","门店数量",b.units_as_of,b.units],["ITEM 17","合同期限","",b.term]];
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button><span style="font-size:12px;color:var(--muted)">品牌档案</span></div>
  <section class="prof">
-  <div class="prow"><span class="pav" style="background:${COLORS[b.c]}">${esc(b.name[0])}</span>
+  <div class="pcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}"><button class="pedit" data-bedit="${b.id}">品牌方编辑</button></div>
+  <div class="prow">${avHTML(b,"pav")}
    <div class="pid"><h2>${esc(b.name)}</h2><p>${esc(b.cn)} · ${esc(b.cat)}</p></div>
    <button class="follow" data-toast="已关注 ${esc(b.name)}">+ 关注</button></div>
   <div class="pstats"><div><b>${esc(b.units)}</b><span>门店</span></div><div><b>${esc(b.fee.split("（")[0])}</b><span>加盟费</span></div><div><b>${esc(lowInvest(b.invest))}</b><span>投资起步</span></div><div><b>${esc(b.royalty.split("（")[0])}</b><span>权利金</span></div></div>
@@ -322,10 +365,11 @@ function openBrand(id){const b=B(id);const rel=posts().filter(p=>p.brand===id);
   <button class="more" data-bio aria-expanded="false" aria-controls="pbio">展开</button>
   <div class="ptags">${(b.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join("")}<span class="src">${esc(b.fdd_year)} FDD</span></div>
  </section>
- <nav class="jump" role="tablist" aria-label="品牌信息">${[["fee","费用"],["units","门店"],["rev","收入"],["sim","同类"],["notes","笔记"]].map(([k,l],i)=>`<button role="tab" data-btab="${k}" aria-selected="${i===0}">${l}</button>`).join("")}</nav>
+ <nav class="jump" role="tablist" aria-label="品牌信息">${[["fee","费用"],["units","门店"],["rev","收入"],["idea","理念"],["sim","同类"],["notes","笔记"]].map(([k,l],i)=>`<button role="tab" data-btab="${k}" aria-selected="${i===0}">${l}</button>`).join("")}</nav>
  <div class="sec bpanel" data-panel="fee"><h4>费用与投资 · FDD 关键条款</h4><div class="items">${rows.map(r=>`<div class="item"><div class="ihead"><span class="lab">${r[1]}</span><span class="no">${r[0]}</span></div><div class="val">${esc(r[3])}</div>${r[2]?`<small class="isub">${esc(r[2])}</small>`:""}</div>`).join("")}</div>${b.note?`<p class="warn">另外：${esc(b.note)}</p>`:""}<p class="warn">来源：${esc(b.fdd_year)} 年 FDD，${esc(b.source)}</p></div>
  <div class="sec bpanel" data-panel="units" hidden><h4>门店变化 · ITEM 20</h4>${trendHTML(b)}</div>
  <div class="sec bpanel" data-panel="rev" hidden><h4>收入披露 · ITEM 19</h4>${revHTML(b)}</div>
+ <div class="sec bpanel" data-panel="idea" hidden><h4>品牌理念</h4>${ideaHTML(b)}</div>
  <div class="sec bpanel" data-panel="sim" hidden><h4>同类品牌 · ${esc(b.cat)}</h4>${simHTML(b)}</div>
  <div class="bpanel" data-panel="notes" hidden><div class="sec"><h4>相关笔记 · ${rel.length}</h4>${rel.length?`<div class="feed">${rel.map(cardHTML).join("")}</div>`:`<div class="empty" style="padding:20px">还没有人写这个品牌</div>`}</div>
  <button class="submit" style="width:100%;margin-top:14px" data-compose="${b.id}">写一篇关于 ${esc(b.name)} 的笔记</button>
@@ -338,7 +382,7 @@ function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  <article class="post"><div class="cover bigcover" style="background:${COLORS[p.c]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
  <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av"><i style="background:${COLORS[p.user.length%6]}"></i><span>${esc(p.user)}</span></span><span>♡ ${p.likes}</span></div>
  <div class="txt">${esc(p.body)}</div>
- ${b?`<button class="linkcard" data-brand="${b.id}"><span class="mono" style="background:${COLORS[b.c]}">${esc(b.name[0])}</span><span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>`)}
+ ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>`)}
 
 function openCompose(pre){S.color=pre?B(pre).c:0;
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 取消</button><span style="font-size:12px;color:var(--muted)">发布笔记</span></div>
@@ -351,6 +395,8 @@ function openCompose(pre){S.color=pre?B(pre).c:0;
  <button class="submit" type="submit">发布</button></form>`)}
 
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+ if(d.bedit){openBrandEdit(d.bedit);return}
+ if(d.breset){delete S.edits[d.breset];persist();openBrand(d.breset);render();toast("已恢复默认");return}
  if(d.btab){document.querySelectorAll("[data-btab]").forEach(x=>x.setAttribute("aria-selected",x===t));document.querySelectorAll("[data-panel]").forEach(x=>x.hidden=x.dataset.panel!==d.btab);return}
  if(d.fscroll){const f=$("#filters");f.scrollBy({left:+d.fscroll*220,behavior:"smooth"});return}
  if(d.tab){S.tab=d.tab;render()}
@@ -366,7 +412,10 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  else if(d.sw){S.color=+d.sw;document.querySelectorAll("[data-sw]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sw===d.sw))}
  else if("bio" in d){const el=$("#pbio"),o=el.classList.toggle("open");t.textContent=o?"收起":"展开";t.setAttribute("aria-expanded",o)}
  else if(d.toast)toast(d.toast)});
-document.addEventListener("submit",e=>{if(e.target.id==="mf"){e.preventDefault();const t=S.threads.find(x=>x.id===S.thread),v=$("#mi").value.trim();if(!t||!v)return;
+document.addEventListener("submit",e=>{if(e.target.id==="bef"){e.preventDefault();const id=e.target.dataset.id;
+  S.edits[id]={avatar:S.draft.avatar||undefined,cover:S.draft.cover||undefined,tagline:$("#etag").value.trim(),bio:$("#ebio").value.trim(),philosophy:{mission:$("#emis").value.trim(),values:$("#eval").value.split("\n").map(x=>x.trim()).filter(Boolean),story:$("#esto").value.trim()}};
+  persist();render();openBrand(id);toast("已保存");return}
+ if(e.target.id==="mf"){e.preventDefault();const t=S.threads.find(x=>x.id===S.thread),v=$("#mi").value.trim();if(!t||!v)return;
   t.msgs.push({me:true,t:v});t.time="刚刚";S.threads=[t,...S.threads.filter(x=>x!==t)];persist();render();openThread(t.id);$("#mi").focus();return}
  if(e.target.id!=="cf")return;e.preventDefault();
  const p={id:"m"+Date.now(),ch:$("#fch").value,brand:$("#fbr").value||null,c:S.color,kicker:"NOTE",cover:$("#fc").value.trim(),title:$("#ft").value.trim(),body:$("#fb").value.trim(),user:"女王 · 商链",likes:0};
