@@ -575,7 +575,7 @@ function brandPageHTML(id){const b=B(id);const rel=posts().filter(p=>p.brand===i
  </section>
  <nav class="jump" role="tablist" aria-label="品牌信息">${[["fee","费用"],["units","门店"],["rev","收入"],["idea","理念"],["sim","同类"],["notes","笔记"]].map(([k,l],i)=>`<button role="tab" data-btab="${k}" aria-selected="${i===0}">${l}</button>`).join("")}</nav>
  <div class="sec bpanel" data-panel="fee"><h4>费用与投资 · FDD 关键条款</h4><div class="items">${rows.map(r=>`<div class="item"><div class="ihead"><span class="lab">${r[1]}</span><span class="no">${r[0]}</span></div><div class="val">${esc(r[3])}</div>${r[2]?`<small class="isub">${esc(r[2])}</small>`:""}</div>`).join("")}</div>${b.note?`<p class="warn">另外：${esc(b.note)}</p>`:""}<p class="warn">来源：${esc(b.fdd_year)} 年 FDD，${esc(b.source)}</p></div>
- <div class="sec bpanel" data-panel="units" hidden>${mapHTML(b)}<h4 style="margin-top:18px">门店变化 · ITEM 20</h4>${trendHTML(b)}</div>
+ <div class="sec bpanel" data-panel="units" hidden><h4>门店变化 · ITEM 20</h4>${trendHTML(b)}<div style="margin-top:18px">${mapHTML(b)}</div></div>
  <div class="sec bpanel" data-panel="rev" hidden><h4>收入披露 · ITEM 19</h4>${revHTML(b)}</div>
  <div class="sec bpanel" data-panel="idea" hidden><h4>品牌理念</h4>${ideaHTML(b)}</div>
  <div class="sec bpanel" data-panel="sim" hidden><h4>同类品牌 · ${esc(b.cat)}</h4>${simHTML(b)}</div>
