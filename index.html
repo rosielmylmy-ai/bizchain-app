@@ -168,6 +168,9 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.sbar{gap:8px}.sbar .stitle{flex:1;text-align:center}
+.sacts{display:flex;align-items:center;gap:6px}
+.ticon.share{margin-right:-8px;flex:none}
 .usmap{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 12px}
 .mhead{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}.mhead b{font-size:15px}.mhead span{font-size:12px;color:var(--muted)}
 .tiles{display:grid;grid-template-columns:repeat(11,1fr);gap:3px}
@@ -385,7 +388,24 @@ function setupFilters(){const f=$("#filters");if(!f)return;f.scrollLeft=filterPo
  window.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>5)moved=true;f.scrollLeft=sl-dx});
  window.addEventListener("pointerup",()=>{down=false});
  f.addEventListener("click",e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true)}
-function closeSheet(){$("#sheet").hidden=true;S.thread=null}
+function closeSheet(){const sh=$("#sheet");sh.hidden=true;sh.style.transform="";sh.style.transition="";S.thread=null;if(/^#[bp]\//.test(location.hash))history.replaceState(null,"",location.pathname+location.search)}
+// Share: system share sheet on phones; otherwise copy a link that opens this brand or note directly
+async function sharePage(key){const [k,id]=key.split("/"),url=location.href.split("#")[0]+"#"+key;
+ const title=k==="b"?(B(id)?B(id).name+" · 商链品牌档案":"商链"):((posts().find(x=>x.id===id)||{}).title||"商链笔记");
+ if(navigator.share){try{await navigator.share({title,text:title,url});}catch(e){}return}
+ try{await navigator.clipboard.writeText(url);toast("链接已复制，可以发给朋友");return}catch(e){}
+ const ta=document.createElement("textarea");ta.value=url;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();
+ let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();toast(ok?"链接已复制，可以发给朋友":"复制失败，请长按地址栏复制")}
+// Swipe right on an open page to go back (same as tapping 返回)
+(function(){const sh=$("#sheet");let x0=0,y0=0,dx=0,on=false,lock=null,t0=0;
+ sh.addEventListener("touchstart",e=>{if(e.touches.length!==1||e.target.closest(".jump,.filters,.tiles,input,textarea,select"))return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;dx=0;on=true;lock=null;t0=Date.now();sh.style.transition=""},{passive:true});
+ sh.addEventListener("touchmove",e=>{if(!on)return;const t=e.touches[0],mx=t.clientX-x0,my=t.clientY-y0;
+  if(lock===null&&(Math.abs(mx)>10||Math.abs(my)>10))lock=mx>0&&Math.abs(mx)>Math.abs(my)*1.4;
+  if(lock){dx=Math.max(0,mx);sh.style.transform=`translateX(${dx}px)`;sh.style.boxShadow="-8px 0 24px rgba(0,0,0,.08)";e.preventDefault()}},{passive:false});
+ sh.addEventListener("touchend",()=>{if(!on)return;on=false;if(!lock){return}
+  const fast=dx>50&&Date.now()-t0<300;sh.style.transition="transform .22s ease";
+  if(dx>Math.min(120,sh.clientWidth*0.3)||fast){sh.style.transform="translateX(100%)";setTimeout(()=>{sh.style.transition="";sh.style.transform="";sh.style.boxShadow="";const b=sh.querySelector(".sbar .back");b?b.click():closeSheet()},220)}
+  else{sh.style.transform="";setTimeout(()=>{sh.style.transition="";sh.style.boxShadow=""},220)}})})();
 
 function openThread(id){const t=S.threads.find(x=>x.id===id);if(!t)return;t.unread=false;persist();S.thread=id;const b=t.brand&&B(t.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 私信</button><b style="font-size:15px">${esc(t.name)}${badge(t.name,true)}</b><span style="width:48px"></span></div>
@@ -584,10 +604,10 @@ function brandPageHTML(id){const b=B(id);const rel=posts().filter(p=>p.brand===i
  </div>
  ${canEdit(b.id)?"":`<button class="dm" style="width:100%;margin-top:16px;padding:11px;border-radius:10px" data-ask="${b.id}">私信商链顾问，咨询这个品牌</button>`}
  <p class="warn">数据摘自品牌 2026 年 FDD，仅供参考，不构成投资建议。签约前请以完整 FDD 原文为准。</p></div>`}
-function openBrand(id){openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button><span style="font-size:12px;color:var(--muted)">品牌档案</span></div>${brandPageHTML(id)}`)}
+function openBrand(id){openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button><span class="stitle" style="font-size:12px;color:var(--muted)">品牌档案</span><button class="ticon share" data-share="b/${id}" aria-label="分享"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6"/></svg></button></div>${brandPageHTML(id)}`)}
 
 function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
- openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button>${p.user!==ME?`<button class="dm" data-dm="${id}">私信作者</button>`:""}</div>
+ openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button><span class="sacts">${p.user!==ME?`<button class="dm" data-dm="${id}">私信作者</button>`:""}<button class="ticon share" data-share="p/${id}" aria-label="分享"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6"/></svg></button></span></div>
  <article class="post"><div class="cover bigcover" style="background:${PALE[p.c%6]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
  <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av">${dotHTML(p.user,"")}<span>${esc(p.user)}</span>${badge(p.user)}</span><span class="lk">${HEART}${p.likes}</span></div>
  <div class="txt">${esc(p.body)}</div>
@@ -614,6 +634,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  if(d.wipe){try{["bc-mine","bc-threads","bc-brandedits","bc-comments","bc-me","bc-onb"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload();return}
  if(d.svcedit){openSvcEdit();return}
  if(d.uedit){openUserEdit();return}
+ if(d.share){sharePage(d.share);return}
  if(d.st){const b=B(d.bid),x=stateCounts(b)[d.st];document.querySelectorAll(".tile.on").forEach(t=>t.classList.remove("on"));e.target.closest(".tile").classList.add("on");
   const el=$("#stinfo");if(el)el.innerHTML=x.t?`<b>${STCN[d.st]}</b>：${x.t.toLocaleString()} 家${x.c?`（加盟 ${x.f.toLocaleString()} · 直营 ${x.c.toLocaleString()}）`:""}`:`<b>${STCN[d.st]}</b>：还没有门店`;return}
  if(d.bedit){if(canEdit(d.bedit))openBrandEdit(d.bedit);else toast("只有认证的品牌方可以编辑");return}
@@ -656,6 +677,7 @@ $("#q").addEventListener("input",e=>{S.q=e.target.value;const pos=e.target.selec
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet()});
 render();
 if(!S.onb)openOnb("0");
+else{const m=location.hash.match(/^#([bp])\/(.+)$/);if(m){const id=decodeURIComponent(m[2]);if(m[1]==="b"&&B(id))openBrand(id);else if(m[1]==="p"&&posts().some(x=>x.id===id))openPost(id)}}
 </script>
 
 </body>
