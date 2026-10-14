@@ -168,6 +168,7 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.jump.even{gap:0}.jump.even button{flex:1;text-align:center}
 .lk.on{color:var(--seal)}.lk.on svg{fill:var(--seal);stroke:var(--seal)}
 .pacts{position:sticky;bottom:0;display:flex;justify-content:space-around;background:var(--bg);border-top:1px solid var(--line);margin:20px -16px -40px;padding:8px 16px calc(10px + env(safe-area-inset-bottom,0px))}
 .pact{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--soft);padding:8px 14px;min-height:44px}
@@ -518,7 +519,7 @@ function userPageHTML(){const me=S.me,mine=S.mine,likes=mine.reduce((a,p)=>a+(+p
  <div class="pbio">${esc(me.intro||"还没有写简介。介绍一下你的背景、预算范围或想了解的品类，品牌方和服务方更容易找到你。")}</div>
  <div class="ptags">${ints.map(t=>`<span>#${esc(t)}</span>`).join("")||`<span class="src">还没有添加感兴趣的品类</span>`}</div>
  </section>
- <nav class="jump" role="tablist" aria-label="我的内容">${[["notes","笔记",mine.length],["saved","收藏",S.saved.length+S.follows.length],["liked","赞过",S.liked.length],["cmts","评论",myComments().length]].map(([k,l,n])=>`<button role="tab" data-mtab="${k}" aria-selected="${(S.meTab||"notes")===k}">${l}${n?` ${n}`:""}</button>`).join("")}</nav>
+ <nav class="jump even" role="tablist" aria-label="我的内容">${[["notes","笔记",mine.length],["saved","收藏",S.saved.length+S.follows.length],["liked","赞过",S.liked.length],["cmts","评论",myComments().length]].map(([k,l,n])=>`<button role="tab" data-mtab="${k}" aria-selected="${(S.meTab||"notes")===k}">${l}${n?` ${n}`:""}</button>`).join("")}</nav>
  <div class="bpanel">${mePanel()}</div></div>`}
 function myComments(){const out=[];for(const [pid,l] of Object.entries(S.comments))l.forEach((c,i)=>{if(c.user===S.me.name){const p=posts().find(x=>x.id===pid);if(p)out.push({p,text:c.text,i})}});return out.reverse()}
 function mePanel(){const tab=S.meTab||"notes",feed=l=>`<div class="feed">${l.map(cardHTML).join("")}</div>`,empty=t=>`<div class="empty">${t}</div>`;
