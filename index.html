@@ -168,6 +168,19 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.lbl{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.bpick{display:flex;flex-direction:column;gap:6px;color:var(--ink)}
+.pkbox{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 12px;color:var(--muted)}
+.pkbox:focus-within{outline:2px solid var(--gold);outline-offset:1px}.pkbox input.pkq:focus-visible{outline:none}
+.pkbox input.pkq{border:0;background:none;padding:10px 0;flex:1;min-width:0;border-radius:0}
+.pkres{display:flex;flex-direction:column;border-radius:10px;overflow:hidden;border:1px solid var(--line)}.pkres:empty{display:none}
+.pkrow,.pksel{display:flex;align-items:center;gap:10px;padding:10px 12px;text-align:left;width:100%;background:var(--bg);border-bottom:1px solid var(--line)}
+.pkrow:last-child{border-bottom:0}.pkrow:hover{background:var(--surface)}
+.pksel{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.pkrow .mono,.pksel .mono{width:36px;height:36px;font-size:15px;border-radius:8px;flex:none}
+.pkname{display:flex;flex-direction:column;min-width:0;flex:1}.pkname b{font-size:14.5px}.pkname small{font-size:12px;color:var(--muted)}
+.pkadd .pkname b{color:var(--gold)}.pknone{margin:0;padding:10px 12px;font-size:13px;color:var(--muted)}
+.pkchg{font-size:13px;color:var(--gold);flex:none}
 .sbar{gap:8px}.sbar .stitle{flex:1;text-align:center}
 .sacts{display:flex;align-items:center;gap:6px}
 .ticon.share{margin-right:-8px;flex:none}
@@ -377,6 +390,20 @@ function render(){renderTabs();renderTop();renderNav();
  else if(S.nav==="me"){v.innerHTML=userPageHTML()}
 }
 
+// Brand search picker: type to filter by English or Chinese name; the chosen id lives in a hidden input
+function pickerHTML(key,sel,allowNew){const b=sel&&B(sel);
+ return `<div class="bpick" data-pk="${key}" data-new="${allowNew?1:0}"><input type="hidden" id="${key}" value="${esc(sel||"")}">
+ <div class="pksel" ${b?"":"hidden"}>${b?pickChip(b.id):""}</div>
+ <div class="pkbox" ${b?"hidden":""}><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="text" class="pkq" placeholder="搜品牌名，中英文都可以" autocomplete="off" aria-label="搜索品牌"></div>
+ <div class="pkres" role="listbox"></div></div>`}
+function pickChip(id){if(id.startsWith("new:"))return `<span class="pkname"><b>${esc(id.slice(4))}</b><small>新品牌 · 提交后人工审核</small></span><button type="button" class="pkchg" data-pkclear="1">更换</button>`;
+ const b=B(id);return `${avHTML(b)}<span class="pkname"><b>${esc(b.name)}</b><small>${esc(b.cn)} · ${esc(b.cat)}</small></span><button type="button" class="pkchg" data-pkclear="1">更换</button>`}
+function pickSearch(inp){const w=inp.closest(".bpick"),q=inp.value.trim().toLowerCase(),res=w.querySelector(".pkres");
+ if(!q){res.innerHTML="";return}
+ const hits=BRANDS.filter(b=>(b.name+" "+b.cn).toLowerCase().includes(q)).slice(0,6);
+ res.innerHTML=hits.map(b=>`<button type="button" class="pkrow" role="option" data-pick="${b.id}">${avHTML(b)}<span class="pkname"><b>${esc(b.name)}</b><small>${esc(b.cn)} · ${esc(b.cat)} · ${esc(b.units)} 家店</small></span></button>`).join("")
+  +(hits.length?"":`<p class="pknone">没有找到「${esc(inp.value.trim())}」</p>`)
+  +(w.dataset.new==="1"?`<button type="button" class="pkrow pkadd" data-pick="new:${esc(inp.value.trim())}"><span class="pkname"><b>我的品牌不在列表里</b><small>提交「${esc(inp.value.trim())}」，审核通过后加入品牌库</small></span></button>`:"")}
 function openSheet(html){$("#sheetIn").innerHTML=html;$("#sheet").hidden=false;$("#sheet").scrollTop=0}
 let filterPos=0;
 function setupFilters(){const f=$("#filters");if(!f)return;f.scrollLeft=filterPos;
@@ -474,7 +501,7 @@ function userPageHTML(){const me=S.me,mine=S.mine,likes=mine.reduce((a,p)=>a+(+p
  return `<div class="bpage"><section class="prof">
  <div class="pcover" style="${me.cover?`background-image:url('${me.cover}')`:`background:linear-gradient(135deg,${PALE[1]},${PALE[3]})`}"></div>
  <div class="prow">${meAv("pav")}
-  <div class="pid"><h2>${esc(me.name)}</h2><p>${esc(me.stage||"潜在加盟商")}${me.region?` · ${esc(me.region)}`:""}</p></div>
+  <div class="pid"><h2>${esc(me.name)}</h2><p>${me.pendingBrand?`${esc(me.pendingBrand)} · 品牌入驻审核中`:esc(me.stage||"潜在加盟商")}${me.region?` · ${esc(me.region)}`:""}</p></div>
   <button class="follow" data-uedit="1">编辑资料</button></div>
  <div class="pstats ps3"><div><b>${mine.length}</b><span>笔记</span></div><div><b>${likes}</b><span>获赞</span></div><div><b>${S.threads.length}</b><span>私信</span></div></div>
  <div class="pbio">${esc(me.intro||"还没有写简介。介绍一下你的背景、预算范围或想了解的品类，品牌方和服务方更容易找到你。")}</div>
@@ -549,18 +576,18 @@ function onbHTML(step){const head=`<div class="onbh"><div class="logo">商链 <s
  if(step==="u")return head+`<h1>欢迎</h1><form id="onbu" class="onbf"><label>昵称<input type="text" id="un" maxlength="20" required placeholder="比如：佛州小老板"></label>
   <label>你现在是<select id="ust"><option>潜在加盟商</option><option>已是加盟商</option></select></label><button class="submit" type="submit">进入商链</button></form>`;
  if(step==="b")return head+`<h1>品牌方认证</h1><p class="lead">认领你的品牌主页。审核通过后，主页会显示品牌认证标志。</p>
-  <form id="onbb" class="onbf"><label>选择你的品牌<select id="bsel" required><option value="">请选择</option>${BRANDS.map(x=>`<option value="${x.id}">${esc(x.name)} · ${esc(x.cn)}</option>`).join("")}</select></label>
+  <form id="onbb" class="onbf"><div class="lbl">选择你的品牌${pickerHTML("bsel","",true)}</div>
   <label>联系人姓名<input type="text" id="bname" maxlength="30" required></label>
   <label>职位<input type="text" id="btitle" maxlength="30" placeholder="比如：加盟发展总监"></label>
   <label>认证材料<input type="file" id="bfile" accept="image/*,.pdf"><small class="isub">营业执照、商标注册证或授权书，演示版不会上传</small></label>
-  <button class="submit" type="submit">提交认证</button><p class="warn">品牌不在列表里？正式版可以先提交 FDD，我们收录后再认证。</p></form>`;
+  <button class="submit" type="submit">提交认证</button></form>`;
  if(step==="s")return head+`<h1>服务方认证</h1><p class="lead">审核通过后，你的评论、私信和主页都会显示认证标志。</p>
   <form id="onbs" class="onbf"><label>服务类型<select id="stype">${SVC_TYPES.map(t=>`<option>${t}</option>`).join("")}</select></label>
   <label>机构 / 姓名<input type="text" id="sorg2" maxlength="40" required></label>
   <label>服务地区<input type="text" id="sreg2" maxlength="40" placeholder="比如：佛州迈阿密"></label>
   <label>执照或资质证明<input type="file" id="sfile" accept="image/*,.pdf"><small class="isub">律师执照、地产经纪执照等，演示版不会上传</small></label>
   <button class="submit" type="submit">提交认证</button></form>`;
- if(step==="ok")return head+`<div class="okbox"><div class="okc">✓</div><h1>认证已提交</h1><p class="lead">正式版里，审核一般需要 1 到 3 个工作日。演示版已自动通过。</p><button class="submit" data-onbdone="1">查看我的主页</button></div>`}
+ if(step==="ok")return head+`<div class="okbox"><div class="okc">✓</div><h1>认证已提交</h1><p class="lead">${S.me.pendingBrand?`「${esc(S.me.pendingBrand)}」还不在品牌库里，我们会先核对这个品牌的 FDD，再开通品牌主页。`:"正式版里，审核一般需要 1 到 3 个工作日。演示版已自动通过。"}</p><button class="submit" data-onbdone="1">查看我的主页</button></div>`}
 function openOnb(step){S.onbStep=step||"0";$("#onb").innerHTML=onbHTML(S.onbStep);$("#onb").hidden=false;$("#onb").scrollTop=0}
 function finishOnb(){S.onb=true;persist();$("#onb").hidden=true;S.nav=S.me.role==="user"?"brands":"me";render();window.scrollTo(0,0)}
 function openBrandEdit(id){const b=B(id),ph=b.philosophy||{};S.draft={avatar:b.avatar||"",cover:b.cover||""};
@@ -622,7 +649,7 @@ function openCompose(pre){S.color=pre?B(pre).c:0;
  <label>封面颜色<div class="swatches">${PALE.map((c,i)=>`<button type="button" data-sw="${i}" aria-label="颜色${i+1}" aria-pressed="${i===S.color}" style="background:${c}"></button>`).join("")}</div></label>
  <label>标题<input type="text" id="ft" maxlength="40" required placeholder="一句话说清楚你要讲什么"></label>
  <label>正文<textarea id="fb" required placeholder="分享你的看法、经历或FDD解读"></textarea></label>
- <label>关联品牌（读者可一键查看FDD）<select id="fbr"><option value="">不关联</option>${BRANDS.map(b=>`<option value="${b.id}" ${b.id===pre?"selected":""}>${esc(b.name)}</option>`).join("")}</select></label>
+ <div class="lbl">关联品牌（选填，读者可一键查看 FDD）${pickerHTML("fbr",pre||"",false)}</div>
  <label>频道<select id="fch"><option>投资人</option><option>品牌方</option><option>法规</option></select></label>
  <button class="submit" type="submit">发布</button></form>`)}
 
@@ -635,6 +662,8 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  if(d.svcedit){openSvcEdit();return}
  if(d.uedit){openUserEdit();return}
  if(d.share){sharePage(d.share);return}
+ if(d.pick!==undefined){const w=t.closest(".bpick");w.querySelector("input[type=hidden]").value=d.pick;const sel=w.querySelector(".pksel");sel.innerHTML=pickChip(d.pick);sel.hidden=false;w.querySelector(".pkbox").hidden=true;w.querySelector(".pkres").innerHTML="";w.querySelector(".pkq").value="";return}
+ if(d.pkclear){const w=t.closest(".bpick");w.querySelector("input[type=hidden]").value="";w.querySelector(".pksel").hidden=true;w.querySelector(".pkbox").hidden=false;w.querySelector(".pkq").focus();return}
  if(d.st){const b=B(d.bid),x=stateCounts(b)[d.st];document.querySelectorAll(".tile.on").forEach(t=>t.classList.remove("on"));e.target.closest(".tile").classList.add("on");
   const el=$("#stinfo");if(el)el.innerHTML=x.t?`<b>${STCN[d.st]}</b>：${x.t.toLocaleString()} 家${x.c?`（加盟 ${x.f.toLocaleString()} · 直营 ${x.c.toLocaleString()}）`:""}`:`<b>${STCN[d.st]}</b>：还没有门店`;return}
  if(d.bedit){if(canEdit(d.bedit))openBrandEdit(d.bedit);else toast("只有认证的品牌方可以编辑");return}
@@ -658,7 +687,9 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  else if(d.toast)toast(d.toast)});
 document.addEventListener("submit",e=>{const fid=e.target.id;
  if(fid==="onbu"){e.preventDefault();S.me={name:$("#un").value.trim(),role:"user",stage:$("#ust").value};finishOnb();toast("欢迎来到商链");return}
- if(fid==="onbb"){e.preventDefault();const id=$("#bsel").value;S.me={name:`${B(id).name} 招商 · ${$("#bname").value.trim()}`,role:"brand",brand:id,title:$("#btitle").value.trim()};persist();openOnb("ok");return}
+ if(fid==="onbb"){e.preventDefault();const id=$("#bsel").value;if(!id){toast("请先搜索并选择你的品牌");$("#onbb .pkq")&&$("#onbb .pkq").focus();return}
+  const nw=id.startsWith("new:"),bn=nw?id.slice(4):B(id).name;
+  S.me={name:`${bn} 招商 · ${$("#bname").value.trim()}`,role:"brand",brand:nw?null:id,pendingBrand:nw?bn:undefined,title:$("#btitle").value.trim()};persist();openOnb("ok");return}
  if(fid==="onbs"){e.preventDefault();S.me={name:$("#sorg2").value.trim(),role:"service",svc:$("#stype").value,org:$("#sorg2").value.trim(),region:$("#sreg2").value.trim()};persist();openOnb("ok");return}
  if(fid==="uef"){e.preventDefault();const nn=$("#uname").value.trim()||S.me.name,old=S.me.name;
   if(nn!==old){S.mine.forEach(p=>{if(p.user===old)p.user=nn});Object.values(S.comments).forEach(l=>l.forEach(c=>{if(c.user===old)c.user=nn}))}
@@ -673,6 +704,7 @@ document.addEventListener("submit",e=>{const fid=e.target.id;
  if(e.target.id!=="cf")return;e.preventDefault();
  const p={id:"m"+Date.now(),ch:$("#fch").value,brand:$("#fbr").value||null,c:S.color,kicker:"NOTE",cover:$("#fc").value.trim(),title:$("#ft").value.trim(),body:$("#fb").value.trim(),user:"女王 · 商链",likes:0};
  S.mine.unshift(p);persist();closeSheet();S.nav="feed";S.tab="推荐";render();window.scrollTo(0,0);toast("已发布")});
+document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("pkq"))pickSearch(e.target)});
 $("#q").addEventListener("input",e=>{S.q=e.target.value;const pos=e.target.selectionStart;render();e.target.focus();try{e.target.setSelectionRange(pos,pos)}catch(_){}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet()});
 render();
