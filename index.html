@@ -9,83 +9,82 @@
 <style>
 /* Layout: phone-shaped app column — sticky top bar, two-column note feed, bottom tab bar; brand data opens as a full sheet */
 :root{
-  --bg:#f6f5f2; --surface:#ffffff; --ink:#1b1d24; --muted:#6c6b73; --line:#e6e3dc;
-  --gold:#a8843f; --seal:#c2412d; --chip:#efe9dc; --good:#2f7a4f; --goodbg:#e3f1e8; --svc:#2b5ea7; --svcfg:#ffffff;
-  --display:"Noto Serif SC","Songti SC",serif;
-  --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --bg:#F4F4F2; --surface:#ffffff; --ink:#1B1B1F; --muted:#8A8A91; --line:#E6E6E3; --soft:#4A4A52;
+  --gold:#D2364B; --seal:#F0455A; --chip:#FDEBED; --good:#2f7a4f; --goodbg:#e3f1e8; --svc:#2b5ea7; --svcfg:#ffffff;
+  --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --display:var(--body); --mono:var(--body);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#121317; --surface:#1c1d23; --ink:#ecebe7; --muted:#9a99a2; --line:#2c2d35;
-  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}}
+  --bg:#121214; --surface:#1E1E22; --ink:#EDEDEF; --muted:#9A9AA1; --line:#2C2C31; --soft:#C4C4CA;
+  --gold:#FF7A8A; --seal:#F0455A; --chip:#3A1E23; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#121317; --surface:#1c1d23; --ink:#ecebe7; --muted:#9a99a2; --line:#2c2d35;
-  --gold:#d2ae68; --seal:#e66a52; --chip:#2a2720; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}
+  --bg:#121214; --surface:#1E1E22; --ink:#EDEDEF; --muted:#9A9AA1; --line:#2C2C31; --soft:#C4C4CA;
+  --gold:#FF7A8A; --seal:#F0455A; --chip:#3A1E23; --good:#6cc28f; --goodbg:#1f3328; --svc:#7ea6e8; --svcfg:#0f1520; color-scheme:dark}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);padding-inline:0}
 *{box-sizing:border-box}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .app{max-width:480px;margin:0 auto;min-height:100%;background:var(--bg);position:relative;padding-bottom:84px}
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:12px 16px 8px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 16px 6px;display:flex;flex-direction:column;gap:8px}
 .brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.04em;display:flex;align-items:baseline;gap:8px}
-.logo small{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.12em}
-.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+.logo{font-weight:700;font-size:20px;letter-spacing:.02em;display:flex;align-items:baseline;gap:8px}
+.logo small{font-size:11px;font-weight:500;color:var(--seal);letter-spacing:.12em}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:999px;padding:9px 14px;color:var(--muted)}
 .search input{border:0;background:none;flex:1;min-width:0;font:inherit;color:var(--ink);outline:none}
-.tabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none}
-.tabs button{padding:4px 0;color:var(--muted);white-space:nowrap;font-size:15px;border-bottom:2px solid transparent}
-.tabs button[aria-pressed="true"]{color:var(--ink);font-weight:700;border-color:var(--seal)}
+.tabs{display:flex;gap:22px;align-items:flex-end;overflow-x:auto;scrollbar-width:none}
+.tabs button{padding:6px 0 4px;color:var(--muted);white-space:nowrap;font-size:16px;border-bottom:3px solid transparent}
+.tabs button[aria-pressed="true"]{color:var(--ink);font-weight:700;font-size:18px;border-color:var(--seal)}
 main{padding:12px 10px}
 .feed{columns:2;column-gap:8px}
 .card{break-inside:avoid;margin-bottom:8px;background:var(--surface);border-radius:10px;overflow:hidden;display:block;width:100%;text-align:left}
-.cover{padding:16px 14px;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--display);font-weight:900;line-height:1.25;color:#fff;font-size:19px;text-wrap:balance}
-.cover .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.14em;opacity:.8;margin-bottom:6px;font-weight:500}
-.cbody{padding:10px 10px 12px;display:flex;flex-direction:column;gap:8px}
-.ctitle{font-weight:500;font-size:13.5px;line-height:1.45}
+.cover{padding:14px 12px;display:flex;flex-direction:column;justify-content:flex-end;font-weight:700;line-height:1.35;color:#1B1B1F;font-size:17px;text-wrap:balance}
+.cover .kicker{font-size:11px;letter-spacing:.1em;opacity:.55;margin-bottom:6px;font-weight:500}
+.cbody{padding:8px 10px 10px;display:flex;flex-direction:column;gap:6px}
+.ctitle{font-weight:500;font-size:14px;line-height:1.45}
 .bchip{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:var(--chip);color:var(--gold);font-size:11.5px;padding:3px 8px;border-radius:6px;font-weight:500}
 .bchip b{font-family:var(--mono);font-weight:500}
-.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px}.meta .lk{display:inline-flex;align-items:center;gap:3px}
 .av{display:inline-flex;align-items:center;gap:6px;min-width:0}
 .av i{width:18px;height:18px;border-radius:50%;display:inline-block;background:var(--gold);flex:none}
 .av span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;height:58px}
-.nav button{font-size:13px;color:var(--muted)}
+.nav>div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;height:60px}
+.nav button{font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;height:52px;justify-content:center}
 .nav button[aria-current="page"]{color:var(--ink);font-weight:700}
-.nav .plus{justify-self:center;width:46px;height:32px;border-radius:9px;background:var(--seal);color:#fff;font-size:22px;line-height:1}
+.nav .plus{justify-self:center;width:52px;height:36px;border-radius:12px;background:var(--seal);color:#fff}
 .note{font-size:11.5px;color:var(--muted);text-align:center;padding:14px 8px 4px}
 /* brand list */
 .blist{display:flex;flex-direction:column;gap:8px}
 .brow{background:var(--surface);border-radius:12px;padding:14px;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;text-align:left;width:100%}
-.mono{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:900;color:#fff;font-size:18px}
+.mono{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#fff;font-size:18px}
 .brow h3{margin:0;font-size:15px}
 .brow p{margin:3px 0 0;color:var(--muted);font-size:12px}
 .brow .fig{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink)}
 .brow .fig small{display:block;color:var(--muted);font-family:var(--body);font-size:11px}
 .filters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -10px 10px;padding:2px 10px}
 .filters::-webkit-scrollbar{display:none}
-.filters button{flex:none;padding:5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.filters button{flex:none;padding:6px 14px;border-radius:999px;background:var(--surface);font-size:13px;color:var(--soft);white-space:nowrap}
 .fwrap{position:relative}
 .filters{cursor:grab;user-select:none}
 .farrow{position:absolute;top:0;height:32px;width:44px;display:flex;align-items:center;font-size:20px;color:var(--ink);z-index:1}
 .farrow.r{right:-10px;justify-content:flex-end;padding-right:8px;background:linear-gradient(to right,transparent,var(--bg) 55%)}
 .farrow.l{left:-10px;justify-content:flex-start;padding-left:8px;background:linear-gradient(to left,transparent,var(--bg) 55%)}
-.filters button small{font-family:var(--mono);font-size:10.5px;margin-left:4px;opacity:.7}
-.filters button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);font-weight:500}
+.filters button small{font-size:11px;margin-left:4px;opacity:.6}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:500}
 /* sheets */
 .sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow-y:auto}
 .sheet .inner{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 40px}
 .sbar{display:flex;align-items:center;justify-content:space-between;padding:6px 0 12px}
 .back{font-size:15px;color:var(--muted)}
 .hero{border-radius:14px;padding:20px 18px;color:#fff;display:flex;flex-direction:column;gap:6px}
-.hero h2{margin:0;font-family:var(--display);font-weight:900;font-size:26px}
+.hero h2{margin:0;font-family:var(--display);font-weight:700;font-size:26px}
 .hero p{margin:0;opacity:.85;font-size:13px}
 .follow{align-self:flex-start;margin-top:6px;background:rgba(255,255,255,.18);color:#fff;border-radius:999px;padding:5px 14px;font-size:13px}
 .prof{background:var(--surface);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .prow{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center}
-.pav{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:900;font-size:24px}
-.pid{min-width:0}.pid h2{margin:0;font-family:var(--display);font-weight:900;font-size:21px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pav{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:700;font-size:24px}
+.pid{min-width:0}.pid h2{margin:0;font-family:var(--display);font-weight:700;font-size:21px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pid p{margin:3px 0 0;color:var(--muted);font-size:12.5px}
 .prof .follow{background:var(--seal);color:#fff;margin:0;align-self:center}
 .pstats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
@@ -141,7 +140,7 @@ main{padding:12px 10px}
 .pav{border:3px solid var(--surface);box-sizing:content-box}
 .avimg{background-size:cover;background-position:center;color:transparent}
 .idea{background:var(--surface);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.idea blockquote{margin:0;font-family:var(--display);font-weight:900;font-size:19px;line-height:1.45;text-wrap:balance;border-left:3px solid var(--seal);padding-left:12px}
+.idea blockquote{margin:0;font-family:var(--display);font-weight:700;font-size:19px;line-height:1.45;text-wrap:balance;border-left:3px solid var(--seal);padding-left:12px}
 .vals{display:flex;flex-wrap:wrap;gap:6px}.vals span{background:var(--chip);color:var(--gold);font-size:13px;padding:4px 10px;border-radius:999px}
 .story{font-size:14.5px;line-height:1.8;white-space:pre-wrap}.byb{margin:0;font-size:11.5px;color:var(--muted)}
 .ideaempty{background:var(--surface);border-radius:12px;padding:20px 16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
@@ -153,7 +152,7 @@ main{padding:12px 10px}
 .edh{margin:8px 0 0;font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:500}
 .vb{display:inline-flex;align-items:center;font-size:10.5px;line-height:1;padding:3px 6px;border-radius:999px;font-weight:700;margin-left:5px;vertical-align:middle;white-space:nowrap;font-family:var(--body)}
 .vb.brand,.vbi.brand{background:var(--seal);color:#fff}.vb.svc,.vbi.svc{background:var(--svc);color:var(--svcfg)}
-.vbi{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;font-size:8.5px;font-weight:900;margin-left:4px;flex:none}
+.vbi{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;font-size:8.5px;font-weight:700;margin-left:4px;flex:none}
 .pverified{position:absolute;top:10px;right:10px;background:var(--surface);color:var(--seal);font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
 .pverified.no{color:var(--muted);font-weight:500}
 .pverified.svcv{color:var(--svc)}
@@ -169,6 +168,11 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.search input[type=text]{border:0;background:none;padding:0;border-radius:0}
+.bchip{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:stretch}
+.card{padding:0;border:0}
+.sheet:has(.post){background:var(--surface)}
+.post .cmts{border-color:#EEEEEC}
 .brandrow{min-height:36px}
 .logo.plain{font-size:20px;letter-spacing:0}
 .ticon{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--ink);margin-right:-8px}
@@ -176,7 +180,7 @@ main{padding:12px 10px}
 .onb{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 20px calc(env(safe-area-inset-bottom,0px) + 32px)}
 .onb>*{max-width:440px;margin-inline:auto}
 .onbh{display:flex;justify-content:space-between;align-items:center;padding:4px 0 24px}
-.onb h1{font-family:var(--display);font-weight:900;font-size:28px;margin:8px auto 8px;text-wrap:balance}
+.onb h1{font-family:var(--display);font-weight:700;font-size:28px;margin:8px auto 8px;text-wrap:balance}
 .onb .lead{color:var(--muted);font-size:14.5px;line-height:1.6;margin:0 auto 22px}
 .roles{display:flex;flex-direction:column;gap:12px}
 .roles button{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:6px;position:relative}
@@ -184,7 +188,7 @@ main{padding:12px 10px}
 .roles em{position:absolute;top:16px;right:14px;font-style:normal}
 .onbf{display:flex;flex-direction:column;gap:14px}
 .okbox{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding-top:40px}
-.okc{width:64px;height:64px;border-radius:50%;background:var(--goodbg);color:var(--good);display:grid;place-items:center;font-size:30px;font-weight:900}
+.okc{width:64px;height:64px;border-radius:50%;background:var(--goodbg);color:var(--good);display:grid;place-items:center;font-size:30px;font-weight:700}
 .okbox .submit{align-self:stretch;margin-top:12px}
 .dcard{background:var(--surface);border-radius:14px;padding:16px;display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:center}
 .dcard h2{margin:0;font-family:var(--display);font-size:19px;display:flex;align-items:center;flex-wrap:wrap;gap:4px}.dcard p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
@@ -211,9 +215,9 @@ main{padding:12px 10px}
 .states{display:flex;flex-wrap:wrap;gap:6px}
 .states span{font-family:var(--mono);font-size:11.5px;padding:3px 8px;border-radius:6px;background:var(--chip);color:var(--gold)}
 .warn{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
-.post h1{font-size:19px;line-height:1.4;margin:14px 0 8px;text-wrap:balance}
-.post .txt{font-size:15px;line-height:1.75;white-space:pre-wrap}
-.post .bigcover{border-radius:12px;min-height:220px;font-size:26px}
+.post h1{font-size:18px;font-weight:700;line-height:1.4;margin:14px 0 8px;text-wrap:balance}
+.post .txt{font-size:15px;line-height:1.65;color:var(--ink);white-space:pre-wrap}
+.post .bigcover{border-radius:10px;min-height:300px;font-size:22px}
 .linkcard{margin-top:16px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center}
 .linkcard .mono{width:40px;height:40px;font-size:16px}
 .linkcard small{color:var(--muted);font-size:12px;display:block}
@@ -262,7 +266,7 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
       <div class="logo" id="ttl">商链 <small>BIZCHAIN</small></div>
       <button class="ticon" id="tact" hidden></button>
     </div>
-    <div class="search" id="sbox"><span aria-hidden="true">⌕</span><input id="q" type="text" placeholder="搜品牌、FDD条款" aria-label="搜索"></div>
+    <div class="search" id="sbox"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="q" type="text" placeholder="搜品牌、FDD条款" aria-label="搜索"></div>
     <nav class="tabs" id="feedTabs" aria-label="频道"></nav>
   </header>
   <main id="view"></main>
@@ -276,6 +280,9 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 
 <script>
 const COLORS=["#8a3324","#1f4e5f","#5b4a2e","#2f3b6b","#6b2f4f","#2e5b3f"];
+// Light placeholder tints for note covers (image stand-ins)
+const PALE=["#E4ECEF","#F1E2DA","#E3EBDF","#EBE3F0","#F3EBD3","#DDE7EA"];
+const HEART=`<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`;
 // Brand records extracted from 2026 FDDs filed with Wisconsin DFI. Re-check against the source FDD before relying on any figure.
 const BRANDS=[{"id": "85c-bakery-cafe", "name": "85°C Bakery Cafe", "cn": "台式面包咖啡", "cat": "餐饮", "units": "88", "fee": "$50,000（第二家起 $40,000）", "royalty": "6.5%", "ad": "1%", "invest": "$819,130 – $1,771,780", "to_franchisor": "$100,125 – $150,500", "item19": "不披露", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "来自台湾的烘焙咖啡连锁", "bio": "85°C 由台湾美食达人集团创立，全球门店超过 1,100 家，以现烤面包、蛋糕和海盐咖啡出名。美国业务总部设在加州 Brea，2020 年开始在美国开放加盟。", "tags": ["台湾品牌", "烘焙", "咖啡茶饮"], "units_trend": {"2022": 67, "2023": 72, "2024": 81, "2025": 88}, "c": 0}, {"id": "anytime-fitness", "name": "Anytime Fitness", "cn": "24小时健身房", "cat": "健康健身", "units": "2,282", "fee": "$42,500", "royalty": "最高 8%", "ad": "$900/月（上限 3%）", "invest": "$539,329 – $905,482", "to_franchisor": "$91,357 – $111,462", "item19": "有：会籍收入中位数约 $341,503", "term": "待核", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "全球知名的 24 小时健身房", "bio": "Anytime Fitness 2002 年创立于明尼苏达州，以会员全天候刷卡进店的小型健身房模式起家，门店遍布全球。和 Orangetheory、The Bar Method、Waxing the City 同属一个健身和美容品牌集团，总部在明尼苏达州 Woodbury。", "tags": ["健身", "24小时", "会员制"], "units_trend": {"2022": 2330, "2023": 2310, "2024": 2301, "2025": 2282}, "item19_detail": {"metric": "门店总收入", "period": "最近 12 个月", "basis": "1,683 家加盟健身房（会籍 + 私教 + 单次收入）", "summary": {"n": 1683, "avg": 446814, "median": 398982, "high": 2048737, "low": 90337, "above": "663 家（39%）"}, "group_title": "按收入四分位", "groups": [{"label": "前 25%", "n": 420, "avg": 746996, "median": 674846, "high": 2048737, "low": 535597}, {"label": "第二档", "n": 421, "avg": 461057, "median": 456382, "high": 535569, "low": 399121}, {"label": "第三档", "n": 421, "avg": 346746, "median": 346167, "high": 398982, "low": 298515}, {"label": "后 25%", "n": 421, "avg": 233169, "median": 241939, "high": 298176, "low": 90337}]}, "c": 2}, {"id": "crumbl", "name": "Crumbl", "cn": "饼干烘焙", "cat": "餐饮", "units": "1,101", "fee": "$50,000", "royalty": "8%", "ad": "2% + 合作广告 1–2%", "invest": "$848,566 – $1,472,533", "to_franchisor": "$81,000 – $89,000", "item19": "有：门店平均销售额约 $1,139,162（776家报送）", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "美国增长最快的饼干品牌之一", "bio": "Crumbl 2017 年创立于犹他州，以粉色包装盒、每周轮换口味的大号饼干，以及在社交媒体上的走红迅速扩张，几年内开到上千家店。总部在犹他州。", "tags": ["甜品", "烘焙", "网红"], "units_trend": {"2022": 691, "2023": 972, "2024": 1059, "2025": 1101}, "item19_detail": {"metric": "门店销售额", "period": "2025 年", "basis": "776 家全年营业并按时报送的加盟店", "summary": {"n": 776, "avg": 1139162, "median": 1093071, "high": 3421762, "low": 365129, "above": "346 家（45%）"}}, "c": 2}, {"id": "daves-hot-chicken", "name": "Dave's Hot Chicken", "cn": "纳什维尔辣鸡", "cat": "餐饮", "units": "358", "fee": "$40,000（餐车 $20,000）", "royalty": "6%", "ad": "4%", "invest": "首店 $656,800 – $4,161,900（区域开发3家起）", "to_franchisor": "$81,680 – $123,400", "item19": "不披露", "term": "10年", "program": "主要卖区域开发（至少3家）", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "从停车场小摊起家的纳什维尔辣鸡", "bio": "Dave's Hot Chicken 2017 年由几位朋友在洛杉矶一个停车场摆摊起家，主打按辣度定制的纳什维尔风味辣鸡柳和辣鸡堡，靠口碑和明星投资人快速走红。2025 年被私募公司 Roark Capital 收购，总部在加州帕萨迪纳。", "tags": ["炸鸡", "快休闲", "区域开发"], "units_trend": {"2022": 92, "2023": 163, "2024": 238, "2025": 358}, "c": 3}, {"id": "dunkin", "name": "Dunkin'", "cn": "咖啡甜甜圈", "cat": "餐饮", "units": "8,780", "fee": "按市场区域定", "royalty": "5.9%", "ad": "5%", "invest": "$532,400 – $1,832,500（独立店）", "to_franchisor": "$40,340 – $112,740", "item19": "有：按店型披露 AUV", "term": "20年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "美国最大的咖啡和甜甜圈连锁之一", "bio": "Dunkin' 起源于马萨诸塞州，1955 年开始特许经营，是美国最早做加盟的连锁品牌之一，以咖啡和甜甜圈为核心，覆盖全美各地的早餐市场。总部在佐治亚州亚特兰大。", "tags": ["咖啡", "早餐", "老牌连锁"], "units_trend": {"2022": 8118, "2023": 8297, "2024": 8499, "2025": 8780}, "item19_detail": {"metric": "单店年营业额（AUV）", "period": "2025 年", "basis": "7,010 家加盟店", "summary": {"n": 7010, "avg": 1372069, "median": 1297694, "high": 6007706, "low": 65354, "above": "3,155 家（45%）"}, "group_title": "按营业额四分位", "groups": [{"label": "前 25%", "n": 1752, "avg": 2154341, "median": 2041189, "high": 6007706, "low": 1703327}, {"label": "第二档", "n": 1753, "avg": 1489962, "median": 1488156, "high": 1703007, "low": 1297861}, {"label": "第三档", "n": 1752, "avg": 1126192, "median": 1124919, "high": 1297527, "low": 953095}, {"label": "后 25%", "n": 1753, "avg": 718088, "median": 753308, "high": 952914, "low": 65354}]}, "c": 4}, {"id": "gong-cha", "name": "Gong Cha", "cn": "贡茶", "cat": "餐饮", "units": "38", "fee": "$37,000", "royalty": "6%", "ad": "1%", "invest": "$207,450 – $648,460", "to_franchisor": "$67,750 – $103,800", "item19": "有：222家门店净销售额，前25%平均约 $649,521", "term": "10年", "program": "单店", "note": "美国直营加盟门店数较少，多数门店在主加盟商体系下", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "贡茶，台湾知名茶饮品牌", "bio": "贡茶 2006 年创立于台湾高雄，名字意为“献给皇帝的贡品茶”，是全球最知名的台湾茶饮品牌之一，门店遍布多个国家。美国业务总部在波士顿。", "tags": ["台湾品牌", "奶茶", "茶饮"], "units_trend": {"2022": 3, "2023": 2, "2024": 6, "2025": 38}, "item19_detail": {"metric": "门店净销售额", "period": "2025 年", "basis": "222 家全年营业的门店（含主加盟商体系）", "summary": {"n": 222, "avg": 396887, "median": 363373, "high": 992695, "low": 74712, "above": "89 家（40%）"}, "group_title": "按销售额四分位", "groups": [{"label": "前 25%", "n": 56, "avg": 649521, "median": 629137, "high": 992695, "low": 504719}, {"label": "第二档", "n": 55, "avg": 420446, "median": 419089, "high": 491141, "low": 364163}, {"label": "第三档", "n": 55, "avg": 319306, "median": 327213, "high": 362583, "low": 261350}, {"label": "后 25%", "n": 56, "avg": 199208, "median": 205748, "high": 260657, "low": 74712}]}, "c": 5}, {"id": "great-clips", "name": "Great Clips", "cn": "平价理发", "cat": "健康健身", "units": "4,441", "fee": "$20,000", "royalty": "6%", "ad": "5%", "invest": "$187,800 – $419,900", "to_franchisor": "$73,800 – $104,400", "item19": "有：服务销售额均值约 $400,667", "term": "待核", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "全美最大的平价理发连锁之一", "bio": "Great Clips 1982 年在明尼阿波利斯开出第一家店，1983 年开始加盟，主打免预约、价格亲民的快剪服务。目前全美有 4,400 多家门店，全部由加盟商经营。", "tags": ["理发", "服务业", "低投资"], "units_trend": {"2022": 4427, "2023": 4427, "2024": 4439, "2025": 4441}, "item19_detail": {"metric": "门店总销售额", "period": "2025 年", "basis": "4,158 家全年可营业的门店（服务 + 产品）", "summary": {"n": 4158, "avg": 410783, "median": 390685, "high": 1082803, "low": 28036, "above": "1,848 家（44%）"}}, "c": 1}, {"id": "kfc", "name": "KFC", "cn": "肯德基", "cat": "餐饮", "units": "3,490", "fee": "$45,000", "royalty": "4% – 5.25%", "ad": "5.8%", "invest": "$2,107,575 – $4,155,000（新建店）", "to_franchisor": "$48,575 – $50,500", "item19": "有：销售预测工具及准确率，非历史均值", "term": "20年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "肯德基，全球最知名的炸鸡品牌", "bio": "肯德基起源于肯塔基州，1952 年就开始特许经营，是美国最早的快餐加盟品牌之一。现属百胜餐饮集团（Yum! Brands），和 Taco Bell 是同一个母公司，美国总部在德州 Plano。", "tags": ["炸鸡", "快餐", "老牌连锁"], "units_trend": {"2022": 3888, "2023": 3761, "2024": 3637, "2025": 3490}, "item19_detail": {"forecast": "FDD 没有公布门店实际平均销售额，只披露了总部用来预测新店销售额的工具，以及这些预测和实际结果的偏差。2025 年抽样门店的实际年净销售额在 $387,000 到 $3,379,000 之间。"}, "c": 1}, {"id": "kumon", "name": "Kumon", "cn": "公文式教育", "cat": "教育艺术", "units": "1,710", "fee": "$2,000", "royalty": "按学生人数收费", "ad": "—", "invest": "$101,630 – $233,780", "to_franchisor": "$6,500 – $7,500", "item19": "不披露", "term": "5年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "公文式教育，源自日本的课后辅导", "bio": "公文式学习法源自日本，通过每天少量、循序渐进的练习提升数学和阅读能力。北美公司总部在新泽西州，1983 年起在美国开放加盟，目前全美有 1,700 多家中心，几乎全部由加盟商经营。", "tags": ["教育", "课后辅导", "低投资"], "units_trend": {"2022": 1646, "2023": 1659, "2024": 1689, "2025": 1710}, "c": 4}, {"id": "kung-fu-tea", "name": "Kung Fu Tea", "cn": "功夫茶", "cat": "餐饮", "units": "346", "fee": "$37,000（非传统店 $25,000）", "royalty": "4%", "ad": "2%", "invest": "$169,000 – $378,000", "to_franchisor": "$59,000 – $82,000", "item19": "不披露", "term": "10年", "program": "单店 / 非传统店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "从纽约起家的华人奶茶品牌", "bio": "功夫茶 2010 年在纽约开出第一家店，是美国本土成长起来的华人奶茶品牌，产品包括奶茶、水果茶、咖啡和各种冷热饮。品牌没有母公司，总部在纽约。", "tags": ["奶茶", "茶饮", "华人品牌"], "units_trend": {"2022": 340, "2023": 380, "2024": 389, "2025": 346}, "c": 3}, {"id": "mathnasium", "name": "Mathnasium", "cn": "数学辅导", "cat": "教育艺术", "units": "1,047", "fee": "$49,000", "royalty": "10% 或 $1,500 取高", "ad": "待核", "invest": "$127,316 – $165,846", "to_franchisor": "$51,266 – $52,596", "item19": "有：按四分位披露收入（数字待核）", "term": "5年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "专注数学的课外辅导中心", "bio": "Mathnasium 2002 年创立于洛杉矶，用自己的一套数学教学法给小学到高中学生做课外辅导，已发展到全美 1,000 多家中心。总部在洛杉矶。", "tags": ["教育", "数学", "课后辅导"], "units_trend": {"2022": 954, "2023": 972, "2024": 999, "2025": 1047}, "item19_detail": {"metric": "中心总收入", "period": "2025 年", "basis": "914 家由同一加盟商经营满 12 个月的中心", "summary": {"n": 914, "avg": 384874, "median": 326428, "high": 1511770, "low": 66925, "above": "355 家（39%）"}, "group_title": "按收入四分位", "groups": [{"label": "前 25%", "n": 229, "avg": 693314, "median": 635510, "high": 1511770, "low": 467777}, {"label": "第二档", "n": 228, "avg": 391418, "median": 391156, "high": 466924, "low": 326710}, {"label": "第三档", "n": 228, "avg": 278021, "median": 274816, "high": 326146, "low": 235325}, {"label": "后 25%", "n": 229, "avg": 176306, "median": 182523, "high": 234408, "low": 66925}]}, "c": 0}, {"id": "orangetheory", "name": "Orangetheory Fitness", "cn": "团体健身", "cat": "健康健身", "units": "1,224", "fee": "$59,950", "royalty": "8%", "ad": "3%", "invest": "$764,577 – $1,104,920", "to_franchisor": "$182,658 – $237,994", "item19": "有：总销售额中位数约 $750,643", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "心率训练团体健身品牌", "bio": "Orangetheory 以按心率区间设计的 60 分钟团体训练出名，学员看着心率屏幕把运动强度维持在“橙色区间”。总部在佛州 Boca Raton，和 Anytime Fitness 同属一个健身品牌集团。", "tags": ["健身", "团课", "中高端"], "units_trend": {"2022": 1302, "2023": 1333, "2024": 1298, "2025": 1224}, "item19_detail": {"metric": "工作室总销售额", "period": "截至 2026 年 2 月的 12 个月", "basis": "全年营业的加盟工作室", "summary": {"n": null, "avg": 802145, "median": 750643, "high": 2870191, "low": 156118, "above": "518 家（44%）"}, "group_title": "按销售额四分位", "groups": [{"label": "前 25%", "n": null, "avg": 1205826, "median": 1136849, "high": 2870191, "low": 976652}, {"label": "第二档", "n": null, "avg": 857849, "median": 855427, "high": 975601, "low": 750932}, {"label": "第三档", "n": null, "avg": 670024, "median": 668456, "high": 750643, "low": 592602}, {"label": "后 25%", "n": null, "avg": 475979, "median": 493135, "high": 592502, "low": 156118}]}, "c": 0}, {"id": "paris-baguette", "name": "Paris Baguette", "cn": "巴黎贝甜", "cat": "餐饮", "units": "269", "fee": "$50,000", "royalty": "5%", "ad": "2%", "invest": "$727,515 – $1,860,550", "to_franchisor": "$117,200 – $154,000", "item19": "有：加盟店平均销售额约 $3,050,434（162家）", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "巴黎贝甜，韩国 SPC 集团旗下烘焙品牌", "bio": "巴黎贝甜是韩国 SPC 集团旗下的烘焙咖啡连锁，在韩国家喻户晓，近年在美国扩张很快，主营法式面包、蛋糕和咖啡。美国从 2015 年开始开放加盟。", "tags": ["韩国品牌", "烘焙", "咖啡"], "units_trend": {"2022": 118, "2023": 155, "2024": 197, "2025": 269}, "item19_detail": {"metric": "门店销售额", "period": "2025 年", "basis": "162 家全年营业的加盟咖啡厅（不含售卖亭）", "summary": {"n": 162, "avg": 3050434, "median": 2987295, "high": 7035601, "low": 1416086, "above": "78 家（48%）"}, "group_title": "按销售额三等分", "groups": [{"label": "前三分之一", "n": 54, "avg": 4067746, "median": 3950628, "high": 7035601, "low": 3438425}, {"label": "中间", "n": 54, "avg": 2973202, "median": 2987295, "high": 3437520, "low": 2550846}, {"label": "后三分之一", "n": 54, "avg": 2110354, "median": 2169424, "high": 2537900, "low": 1416086}]}, "c": 0}, {"id": "popeyes", "name": "Popeyes", "cn": "炸鸡", "cat": "餐饮", "units": "3,229", "fee": "$50,000", "royalty": "5%", "ad": "5%", "invest": "$1,222,045 – $3,923,245（独立店）", "to_franchisor": "$54,755 – $149,545", "item19": "有：平均销售额约 $1,893,675（加盟店）", "term": "20年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "源自新奥尔良的炸鸡品牌", "bio": "Popeyes 1972 年在路易斯安那州新奥尔良开出第一家店，1976 年开始加盟，以路易斯安那风味炸鸡和炸鸡三明治出名，全球有 5,400 多家门店。总部在迈阿密。", "tags": ["炸鸡", "快餐", "老牌连锁"], "units_trend": {"2022": 2946, "2023": 3076, "2024": 3177, "2025": 3229}, "item19_detail": {"metric": "门店销售额", "period": "2025 年", "basis": "2,248 家全年营业的独立店型加盟店", "summary": {"n": 2248, "avg": 1893675, "median": 1785736, "high": 5931837, "low": 492576, "above": "980 家（44%）"}, "group_title": "按销售额区间", "groups": [{"label": "$200万以上", "n": 847, "avg": 2624920, "median": 2471003, "high": 5931837, "low": 2000066}, {"label": "$150–200万", "n": 695, "avg": 1741756, "median": 1738521, "high": 1999705, "low": 1500885}, {"label": "$150万以下", "n": 706, "avg": 1165940, "median": 1213881, "high": 1498636, "low": 492576}]}, "c": 1}, {"id": "sport-clips", "name": "Sport Clips", "cn": "男士理发", "cat": "健康健身", "units": "1,788", "fee": "$69,500（3店套餐）", "royalty": "6%", "ad": "5% 或 $300/周", "invest": "$226,800 – $580,500", "to_franchisor": "$69,500 – $95,500", "item19": "有：平均销售额约 $419,485", "term": "5年", "program": "多店开发（3家）", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "体育主题的男士理发连锁", "bio": "Sport Clips 1993 年开出第一家店，专为男士和男孩服务，门店里播放体育赛事、装修成运动主题，主打男士理发和造型。总部在德州。", "tags": ["理发", "男士", "服务业"], "units_trend": {"2022": 1855, "2023": 1860, "2024": 1815, "2025": 1788}, "item19_detail": {"metric": "门店销售额", "period": "2025 年", "basis": "1,645 家营业满 2 年的成熟加盟店", "summary": {"n": 1645, "avg": 419485, "median": 416189, "high": null, "low": null, "above": "726 家（44%）"}, "group_title": "销售额分布", "dist": [["$100万以上", 5], ["$80–100万", 32], ["$60–80万", 168], ["$50–60万", 270], ["$40–50万", 439], ["$30–40万", 456], ["$25–30万", 177], ["$25万以下", 198]]}, "c": 3}, {"id": "subway", "name": "Subway", "cn": "赛百味", "cat": "餐饮", "units": "18,773", "fee": "$15,000", "royalty": "8%", "ad": "4.5%", "invest": "见 FDD 封面", "to_franchisor": "—", "item19": "不披露", "term": "20年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "赛百味，门店数最多的快餐品牌之一", "bio": "赛百味 1965 年创立于康涅狄格州，1974 年开始加盟，以现做长条三明治出名，全球门店数长期位居快餐品牌前列。美国门店全部由加盟商经营，总部在康涅狄格州 Shelton。", "tags": ["三明治", "快餐", "老牌连锁"], "units_trend": {"2022": 20576, "2023": 20133, "2024": 19502, "2025": 18773}, "c": 3}, {"id": "taco-bell", "name": "Taco Bell", "cn": "塔可钟", "cat": "餐饮", "units": "7,998", "fee": "$45,000（传统店）", "royalty": "5.5%", "ad": "待核", "invest": "$934,750 – $1,817,200（店中店/角店）", "to_franchisor": "$25,000 起", "item19": "有：销售预测工具，非历史均值", "term": "10年", "program": "传统店", "note": "另有 Express 小店许可：许可费 $22,500，投资 $354,850 – $772,700", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "塔可钟，美国最大的墨西哥风味快餐", "bio": "Taco Bell 1962 年在加州开出第一家店，1964 年开始加盟，主营塔可、卷饼等墨西哥风味快餐。现属百胜餐饮集团（Yum! Brands），和肯德基是同一个母公司，总部在加州 Irvine。", "tags": ["墨西哥风味", "快餐", "多种店型"], "units_trend": {"2022": 7520, "2023": 7681, "2024": 7847, "2025": 7998}, "item19_detail": {"forecast": "FDD 没有公布门店实际平均销售额，只介绍了总部用来预测新店营业额的第三方工具。投资前需要向总部索取具体店址的预测，并找现有加盟商了解实际情况。"}, "c": 4}, {"id": "the-ups-store", "name": "The UPS Store", "cn": "快递打印门店", "cat": "专业服务", "units": "5,503", "fee": "$39,950（第二家起 $19,950）", "royalty": "5%", "ad": "1%", "invest": "$222,368 – $606,081（传统店）", "to_franchisor": "$43,523 – $75,643", "item19": "有：传统店平均调整后销售额约 $1,248,208", "term": "10年", "program": "传统店", "note": "另有非传统店（店中店等）FDD：投资 $114,026 起", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "UPS 旗下的快递和商务服务门店", "bio": "前身是 1980 年创立的 Mail Boxes Etc.，被 UPS 收购后从 2003 年起统一改名为 The UPS Store，提供寄件、打印、信箱租用等服务，主要服务社区居民和小企业，全美有 5,000 多家门店。", "tags": ["服务业", "零售", "非餐饮"], "units_trend": {"2022": 5140, "2023": 5234, "2024": 5365, "2025": 5503}, "item19_detail": {"metric": "调整后销售额", "period": "2025 年", "basis": "5,058 家全年营业的传统店", "summary": {"n": 5058, "avg": 724293, "median": null, "high": null, "low": null, "above": "2,263 家（45%）"}}, "c": 2}, {"id": "tous-les-jours", "name": "Tous les Jours", "cn": "多乐之日", "cat": "餐饮", "units": "189", "fee": "$40,000（多店 $20,000）", "royalty": "5%", "ad": "最高 3%", "invest": "$730,750 – $1,703,000", "to_franchisor": "$243,500 – $343,000", "item19": "有：按年份披露平均销售额", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "多乐之日，韩国 CJ 集团旗下烘焙品牌", "bio": "多乐之日是韩国 CJ 集团旗下的烘焙咖啡连锁，主营面包、蛋糕和咖啡饮品，在韩国和多个国家都有门店。美国从 2009 年开始开放加盟。", "tags": ["韩国品牌", "烘焙", "咖啡"], "units_trend": {"2022": 86, "2023": 107, "2024": 149, "2025": 189}, "item19_detail": {"metric": "门店销售额", "period": "2025 年", "basis": "124 家全年营业的传统加盟店", "summary": {"n": 124, "avg": 1984809, "median": 1792340, "high": 6505005, "low": 357113, "above": "52 家（42%）"}}, "c": 0}, {"id": "wingstop", "name": "Wingstop", "cn": "鸡翅连锁", "cat": "餐饮", "units": "2,586", "fee": "$25,000 开发费 + 加盟费", "royalty": "6%", "ad": "最高 5.5%", "invest": "$310,400 – $1,048,500", "to_franchisor": "$50,000", "item19": "有：平均/中位净销售额（数字待核）", "term": "10年", "program": "单店", "note": "", "fdd_year": "2026", "source": "Wisconsin DFI 备案", "units_as_of": "2025年底", "tagline": "美国增长最快的鸡翅连锁", "bio": "Wingstop 1994 年在德州开出第一家店，1997 年开始加盟，菜单以多种口味的鸡翅为主，外卖占比很高。母公司 Wingstop Inc. 是美股上市公司，总部在德州达拉斯。", "tags": ["鸡翅", "快餐", "外卖"], "units_trend": {"2022": 1721, "2023": 1926, "2024": 2204, "2025": 2586}, "item19_detail": {"metric": "门店净销售额", "period": "2025 年", "basis": "2,171 家全年营业的门店（2,116 家加盟 + 55 家直营）", "summary": {"n": 2171, "avg": 2020001, "median": 1904215, "high": 5042476, "low": 584584, "above": "901 家加盟店（43%）"}}, "c": 1}];
 const SEED=[
@@ -313,10 +320,10 @@ function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeou
 
 function cardHTML(p){const b=p.brand&&B(p.brand);const h=[150,190,170,210][p.id.length%4+ (p.title.length%2)]||180;
  return `<button class="card" data-post="${p.id}">
-  <div class="cover" style="background:${COLORS[p.c]};min-height:${h}px"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
+  <div class="cover" style="background:${PALE[p.c%6]};min-height:${h}px"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
   <div class="cbody"><div class="ctitle">${esc(p.title)}</div>
-  ${b?`<span class="bchip">${esc(b.name)} · 加盟费 <b>${esc(b.fee.split("（")[0])}</b></span>`:""}
-  <div class="meta"><span class="av"><i style="background:${COLORS[(p.user.length)%6]}"></i><span>${esc(p.user)}</span>${badge(p.user,true)}</span><span>♡ ${p.likes}</span></div></div></button>`}
+  ${b?`<span class="bchip">${esc(b.name)} · <b>${esc(b.fee.split("（")[0])}</b></span>`:""}
+  <div class="meta"><span class="av"><i style="background:${COLORS[(p.user.length)%6]}"></i><span>${esc(p.user)}</span>${badge(p.user,true)}</span><span class="lk">${HEART}${p.likes}</span></div></div></button>`}
 
 function renderTabs(){const t=["推荐","投资人","品牌方","法规"];
  $("#feedTabs").innerHTML=t.map(x=>`<button aria-pressed="${S.tab===x}" data-tab="${x}">${x}</button>`).join("");
@@ -332,7 +339,8 @@ function renderTop(){const n=S.nav,t=$("#tact"),sb=$("#sbox"),q=$("#q");
  else{t.hidden=true;t.dataset.act=""}
  sb.hidden=!(n==="brands"||((n==="feed"||n==="msgs")&&S.searchOpen));
  q.placeholder=n==="msgs"?"搜聊天记录、联系人":n==="feed"?"搜笔记、话题、品牌":"搜品牌、FDD条款"}
-function renderNav(){$("#navin").innerHTML=navItems().map(([k,l])=>k==="compose"?`<button data-go="compose" class="plus" aria-label="发布笔记">+</button>`:`<button data-go="${k}" ${S.nav===k?'aria-current="page"':""}>${l}</button>`).join("")}
+const NAV_ICON={brands:'<path d="M4 5h6v14H4zM14 5h6v6h-6zM14 15h6v4h-6z"/>',feed:'<path d="M4 11l8-7 8 7v9H4z"/>',msgs:'<path d="M5 5h14v11H9l-4 3z"/>',me:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/>'};
+function renderNav(){$("#navin").innerHTML=navItems().map(([k,l])=>k==="compose"?`<button data-go="compose" class="plus" aria-label="发布笔记"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`:`<button data-go="${k}" ${S.nav===k?'aria-current="page"':""}><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${S.nav===k?1.9:1.8}" stroke-linecap="round" stroke-linejoin="round">${NAV_ICON[k]}</svg><span>${l}</span></button>`).join("")}
 function render(){renderTabs();renderTop();renderNav();
  const q=S.q.trim().toLowerCase(),v=$("#view");
  if(S.nav==="feed"){let list=posts().filter(p=>S.tab==="推荐"||p.ch===S.tab);
@@ -343,7 +351,7 @@ function render(){renderTabs();renderTop();renderNav();
   let list=BRANDS.filter(b=>S.brandCat==="全部"||b.cat===S.brandCat);
   if(q)list=list.filter(b=>(b.name+b.cn).toLowerCase().includes(q));
   v.innerHTML=`<div class="fwrap"><button class="farrow l" data-fscroll="-1" aria-label="向左滑" hidden>‹</button><div class="filters" id="filters" role="group" aria-label="行业分类">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${S.brandCat===c}">${c}<small>${n(c)}</small></button>`).join("")}</div><button class="farrow r" data-fscroll="1" aria-label="向右滑">›</button></div>
-  <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}">${avHTML(b)}<span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)}</p></span><span class="fig">${esc(b.fee)}<small>加盟费</small></span></button>`).join("")||`<div class="empty">${q?"没有匹配的品牌":"「"+esc(S.brandCat)+"」还没有收录品牌"}</div>`}</div>
+  <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}">${avHTML(b)}<span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)}</p></span><span class="fig">${esc(b.fee.split("（")[0])}<small>加盟费</small></span></button>`).join("")||`<div class="empty">${q?"没有匹配的品牌":"「"+esc(S.brandCat)+"」还没有收录品牌"}</div>`}</div>
   <p class="note">数据来源：威斯康星州 DFI 备案的 2026 年 FDD · 已收录 ${BRANDS.length} 个品牌</p>`;setupFilters()}
  else if(S.nav==="msgs"){let list=S.threads;if(q)list=list.filter(t=>(t.name+t.msgs.map(m=>m.t).join("")).toLowerCase().includes(q));
   v.innerHTML=list.length?`<div class="tlist">${list.map(t=>{const last=t.msgs[t.msgs.length-1];return `<button class="trow" data-thread="${t.id}"><span class="ava" style="background:${COLORS[t.c]}">${esc(t.name[0])}</span><span><b>${esc(t.name)}</b>${badge(t.name,true)}${t.unread?'<i class="dot" aria-label="未读"></i>':""}<p>${last?(last.me?"我：":"")+esc(last.t):(t.brand?"咨询 "+esc(B(t.brand).name):"还没有消息")}</p></span><time>${esc(t.time)}</time></button>`}).join("")}</div><p class="note">原型示例对话 · 消息目前只保存在本机浏览器</p>`:`<div class="empty">还没有私信。在笔记或品牌页点「私信」就能发起对话。</div>`}
@@ -518,8 +526,8 @@ function openBrand(id){openSheet(`<div class="sbar"><button class="back" data-cl
 
 function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 返回</button>${p.user!==ME?`<button class="dm" data-dm="${id}">私信作者</button>`:""}</div>
- <article class="post"><div class="cover bigcover" style="background:${COLORS[p.c]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
- <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av"><i style="background:${COLORS[p.user.length%6]}"></i><span>${esc(p.user)}</span>${badge(p.user)}</span><span>♡ ${p.likes}</span></div>
+ <article class="post"><div class="cover bigcover" style="background:${PALE[p.c%6]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
+ <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av"><i style="background:${COLORS[p.user.length%6]}"></i><span>${esc(p.user)}</span>${badge(p.user)}</span><span class="lk">${HEART}${p.likes}</span></div>
  <div class="txt">${esc(p.body)}</div>
  ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>加盟费 ${esc(b.fee)} · 投资 ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>
  <section class="cmts"><h4>评论 · ${commentsFor(id).length}</h4>${commentsFor(id).map(c=>`<div class="cmt"><i class="cav" style="background:${COLORS[c.user.length%6]}"></i><div><div class="cname">${esc(c.user)}${badge(c.user)}</div><p>${esc(c.text)}</p></div></div>`).join("")||`<p class="warn">还没有评论，来说两句</p>`}
@@ -529,7 +537,7 @@ function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
 function openCompose(pre){S.color=pre?B(pre).c:0;
  openSheet(`<div class="sbar"><button class="back" data-close>‹ 取消</button><span style="font-size:12px;color:var(--muted)">发布笔记</span></div>
  <form id="cf"><label>封面大字（换行用回车）<textarea id="fc" style="min-height:70px" maxlength="30" placeholder="比如：加盟费1万刀\n但总部拿走一半" required></textarea></label>
- <label>封面颜色<div class="swatches">${COLORS.map((c,i)=>`<button type="button" data-sw="${i}" aria-label="颜色${i+1}" aria-pressed="${i===S.color}" style="background:${c}"></button>`).join("")}</div></label>
+ <label>封面颜色<div class="swatches">${PALE.map((c,i)=>`<button type="button" data-sw="${i}" aria-label="颜色${i+1}" aria-pressed="${i===S.color}" style="background:${c}"></button>`).join("")}</div></label>
  <label>标题<input type="text" id="ft" maxlength="40" required placeholder="一句话说清楚你要讲什么"></label>
  <label>正文<textarea id="fb" required placeholder="分享你的看法、经历或FDD解读"></textarea></label>
  <label>关联品牌（读者可一键查看FDD）<select id="fbr"><option value="">不关联</option>${BRANDS.map(b=>`<option value="${b.id}" ${b.id===pre?"selected":""}>${esc(b.name)}</option>`).join("")}</select></label>
