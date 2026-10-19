@@ -168,6 +168,15 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.pown{position:relative}
+.pop{position:absolute;left:0;bottom:calc(100% + 8px);z-index:3;min-width:210px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:6px;display:flex;flex-direction:column}
+.pop button{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:11px 12px;border-radius:8px;font-size:14.5px;min-height:44px}
+.pop button:hover{background:var(--surface)}.pop small{font-size:12px;color:var(--muted)}.pop .danger{color:#C0392B}
+.pop [role=menuitemradio]{flex-direction:column;align-items:flex-start;gap:2px}.pop [role=menuitemradio] b{font-weight:500}
+.pop [aria-checked=true]{background:var(--chip)}.pop [aria-checked=true] b{color:var(--gold)}
+.pop .pback{color:var(--muted);font-size:13px;min-height:36px;padding:6px 10px}
+.ctags{display:flex;gap:4px}.ctag{font-size:11px;padding:2px 6px;border-radius:4px;background:var(--surface);color:var(--soft)}.ctag.pin{background:var(--seal);color:#fff}
+.privnote{margin:14px 0 -6px;font-size:12.5px;color:var(--muted)}
 .pacts{align-items:center}.pown{display:flex;margin-right:auto}.pown .pact{padding:8px 10px}
 .menu{display:flex;flex-direction:column;background:var(--surface);border-radius:12px;overflow:hidden;margin-top:8px}
 .menu button{padding:15px 16px;text-align:left;font-size:15px;border-bottom:1px solid var(--line)}.menu button:last-child{border-bottom:0}
@@ -397,7 +406,7 @@ const stName=k=>S.lang==="en"?STEN[k]:STCN[k];
 const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const B=id=>{let b=BRANDS.find(x=>x.id===id);if(!b)return b;if(S.lang==="en"&&b.en)b=Object.assign({},b,b.en);return S.edits&&S.edits[id]?Object.assign({},b,S.edits[id]):b};
 // My own notes: from the database when signed in, otherwise the ones saved in this browser
-const myPosts=()=>S.cloud&&S.uid?posts().filter(p=>p.uid===S.uid):S.mine.map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
+const myPosts=()=>(S.cloud&&S.uid?posts().filter(p=>p.uid===S.uid):S.mine.map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p)).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
 const rawPost=id=>(S.cloud?S.cloudPosts:S.mine).find(p=>p.id===id);
 const isMine=p=>!!p&&(S.cloud&&S.uid?p.uid===S.uid:S.mine.some(m=>m.id===p.id));
 const posts=()=>(S.cloud?[...S.cloudPosts,...SEED]:[...S.mine,...SEED]).map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
@@ -408,7 +417,7 @@ const SAVEI=`<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" 
 function cardHTML(p){const b=p.brand&&B(p.brand);const h=[150,190,170,210][p.id.length%4+ (p.title.length%2)]||180;
  return `<button class="card" data-post="${p.id}">
   <div class="cover" style="background:${PALE[p.c%6]};min-height:${h}px"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
-  <div class="cbody"><div class="ctitle">${esc(p.title)}</div>
+  <div class="cbody">${p.pinned&&S.nav==="me"||p.vis==="private"?`<div class="ctags">${p.pinned&&S.nav==="me"?`<span class="ctag pin">${L("置顶","Pinned")}</span>`:""}${p.vis==="private"?`<span class="ctag">${L("仅自己可见","Only me")}</span>`:""}</div>`:""}<div class="ctitle">${esc(p.title)}</div>
   ${b?`<span class="bchip">${esc(b.name)} · <b>${esc(shortFee(b.fee))}</b></span>`:""}
   <div class="meta"><span class="av">${dotHTML(p.user,"")}<span>${esc(p.user)}</span>${badge(p.user,true)}</span><span class="lk${S.liked.includes(p.id)?" on":""}">${HEART}${likesOf(p)}</span></div></div></button>`}
 
@@ -430,7 +439,7 @@ const NAV_ICON={brands:'<path d="M4 5h6v14H4zM14 5h6v6h-6zM14 15h6v4h-6z"/>',fee
 function renderNav(){$("#navin").innerHTML=navItems().map(([k,l])=>k==="compose"?`<button data-go="compose" class="plus" aria-label="${L("发布笔记","New note")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`:`<button data-go="${k}" ${S.nav===k?'aria-current="page"':""}><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${S.nav===k?1.9:1.8}" stroke-linecap="round" stroke-linejoin="round">${NAV_ICON[k]}</svg><span>${l}</span></button>`).join("")}
 function render(){renderTabs();renderTop();renderNav();
  const q=S.q.trim().toLowerCase(),v=$("#view");
- if(S.nav==="feed"){let list=posts().filter(p=>S.tab==="推荐"||p.ch===S.tab);
+ if(S.nav==="feed"){let list=posts().filter(p=>(p.vis!=="private"||isMine(p))&&(S.tab==="推荐"||p.ch===S.tab));
   if(q)list=list.filter(p=>(p.title+p.body+(p.brand?B(p.brand).name:"")).toLowerCase().includes(q));
   v.innerHTML=list.length?`<div class="feed">${list.map(cardHTML).join("")}</div><p class="note">${L("品牌数据摘自 2026 年 FDD，签约前请以原文为准","Brand data from 2026 FDDs. Check the full FDD before signing.")}</p>`:`<div class="empty">${T("没有找到相关笔记")}</div>`}
  else if(S.nav==="brands"){const cats=["全部","餐饮","零售","专业服务","家居服务","健康健身","教育艺术","汽车出行","宠物服务","住宿休闲","娱乐休闲","活动服务","体育运动"];
@@ -726,13 +735,13 @@ function openBrand(id){openSheet(`<div class="sbar"><button class="back" data-cl
 function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ ${T("返回")}</button><span class="sacts">${p.user!==S.me.name?`<button class="dm" data-dm="${id}">${T("私信作者")}</button>`:""}<button class="ticon share" data-share="p/${id}" aria-label="${L("分享","Share")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6"/></svg></button></span></div>
  <article class="post"><div class="cover bigcover" style="background:${PALE[p.c%6]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
- <h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av">${dotHTML(p.user,"")}<span>${esc(p.user)}</span>${badge(p.user)}</span></div>
+ ${p.vis==="private"?`<p class="privnote">${L("仅自己可见 · 别人看不到这篇笔记","Only me · no one else can see this note")}</p>`:""}<h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av">${dotHTML(p.user,"")}<span>${esc(p.user)}</span>${badge(p.user)}</span></div>
  <div class="txt">${esc(p.body)}</div>
  ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>${T("加盟费")} ${esc(b.fee)} · ${L("投资","Investment")} ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>
  <section class="cmts"><h4>${T("评论")} · ${commentsFor(id).length}</h4>${commentsFor(id).map(c=>`<div class="cmt">${dotHTML(c.user,"cav")}<div><div class="cname">${esc(c.user)}${badge(c.user)}</div><p>${esc(c.text)}</p></div></div>`).join("")||`<p class="warn">${L("还没有评论，来说两句","No comments yet. Be the first.")}</p>`}
  <form id="cmf" data-pid="${id}" class="cform"><input type="text" id="cmi" maxlength="300" placeholder="${L(`以「${esc(S.me.name)}」身份评论`,`Comment as ${esc(S.me.name)}`)}" aria-label="${L("写评论","Write a comment")}" autocomplete="off" required><button type="submit">${T("发送")}</button></form>
  ${S.me.role==="user"?`<p class="warn">${L("认证的品牌方和服务方，评论时会显示认证标志。","Verified brands and pros show a badge on their comments.")}</p>`:""}</section>
- <div class="pacts">${isMine(p)?`<span class="pown"><button class="pact" data-pedit="${id}" aria-label="${L("编辑","Edit")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>${L("编辑","Edit")}</span></button><button class="pact" data-pmore="${id}" aria-label="${L("更多","More")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button></span>`:""}<button class="pact${S.liked.includes(id)?" on":""}" data-like="${id}" aria-pressed="${S.liked.includes(id)}" aria-label="${L("点赞","Like")}">${HEART.replace(/14/g,"22")}<span>${likesOf(p)}</span></button>
+ <div class="pacts">${isMine(p)?`<span class="pown"><button class="pact" data-pmenu="${id}" aria-haspopup="menu" aria-expanded="false" aria-label="${L("管理笔记","Manage note")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>${L("编辑","Edit")}</span></button><div class="pop" id="pmenu" role="menu" hidden></div></span>`:""}<button class="pact${S.liked.includes(id)?" on":""}" data-like="${id}" aria-pressed="${S.liked.includes(id)}" aria-label="${L("点赞","Like")}">${HEART.replace(/14/g,"22")}<span>${likesOf(p)}</span></button>
  <button class="pact${S.saved.includes(id)?" on":""}" data-save="${id}" aria-pressed="${S.saved.includes(id)}" aria-label="${T("收藏")}">${SAVEI}<span>${S.saved.includes(id)?T("已收藏"):T("收藏")}</span></button>
  <button class="pact" data-tocmt="1" aria-label="${T("评论")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 5h14v11H9l-4 3z"/></svg><span>${commentsFor(id).length}</span></button></div>`)}
 
@@ -745,13 +754,20 @@ function openCompose(pre,editId){const ed=editId?rawPost(editId):null;S.color=ed
  <div class="lbl">${L("关联品牌（选填，读者可一键查看 FDD）","Linked brand (optional — readers can open its FDD)")}${pickerHTML("fbr",pre||"",false)}</div>
  <label>${L("频道","Channel")}<select id="fch">${["投资人","品牌方","法规"].map(x=>`<option value="${x}"${ed&&ed.ch===x?" selected":""}>${T(x)}</option>`).join("")}</select></label>
  <button class="submit" type="submit">${ed?L("保存修改","Save changes"):L("发布","Post")}</button></form>`)}
-function openPostMenu(id){openSheet(`<div class="sbar"><button class="back" data-post="${id}">‹ ${T("返回")}</button><span></span></div>
- <div class="menu"><button data-pedit="${id}">${L("编辑笔记","Edit note")}</button><button class="danger" data-pdel="${id}">${L("删除笔记","Delete note")}</button></div>`)}
+function pmenuHTML(id,view){const p=rawPost(id)||{},pr=p.vis==="private";
+ if(view==="priv")return `<button role="menuitem" class="pback" data-pmview="main" data-pid="${id}">‹ ${L("权限设置","Privacy")}</button>
+  <button role="menuitemradio" aria-checked="${!pr}" data-pvis="public" data-pid="${id}"><b>${L("公开可见","Public")}</b><small>${L("所有人都能看到","Everyone can see it")}</small></button>
+  <button role="menuitemradio" aria-checked="${pr}" data-pvis="private" data-pid="${id}"><b>${L("仅自己可见","Only me")}</b><small>${L("只有你能看到，别人搜不到","Hidden from everyone else")}</small></button>`;
+ return `<button role="menuitem" data-pedit="${id}"><span>${L("编辑","Edit")}</span></button>
+ <button role="menuitem" data-pmview="priv" data-pid="${id}"><span>${L("权限设置","Privacy")}</span><small>${pr?L("仅自己可见","Only me"):L("公开","Public")} ›</small></button>
+ <button role="menuitem" data-ppin="${id}"><span>${p.pinned?L("取消置顶","Unpin"):L("置顶","Pin to profile")}</span></button>
+ <button role="menuitem" class="danger" data-pdel="${id}"><span>${L("删除","Delete")}</span></button>`}
+function closePmenu(){const m=$("#pmenu");if(m){m.hidden=true;const b=document.querySelector("[data-pmenu]");if(b)b.setAttribute("aria-expanded","false")}}
 function openDelConfirm(id){openSheet(`<div class="sbar"><button class="back" data-post="${id}">‹ ${L("取消","Cancel")}</button><span></span></div>
  <div class="confirm"><b>${L("删除这篇笔记？","Delete this note?")}</b><p>${L("删除后，笔记、评论和点赞都会一起删掉，不能恢复。","The note, its comments and likes will be removed. This can't be undone.")}</p>
  <button class="submit danger" data-pdelok="${id}">${L("删除","Delete")}</button><button class="dm" data-post="${id}" style="padding:11px;border-radius:10px">${L("取消","Cancel")}</button></div>`)}
 
-document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!e.target.closest(".pown"))closePmenu();if(!t)return;const d=t.dataset;
  if(t.id==="tact"){if(t.dataset.act==="search"){S.searchOpen=!S.searchOpen;if(!S.searchOpen){S.q="";$("#q").value=""}render();if(S.searchOpen)$("#q").focus()}else if(t.dataset.act==="settings")openSettings();return}
  if(d.onb){openOnb(d.onb);return}
  if(d.onbdone){finishOnb();return}
@@ -768,7 +784,10 @@ document.addEventListener("click",async e=>{const t=e.target.closest("button");i
   if(S.cloud&&isUuid(id))cToggle(d.like?"likes":"saves","post_id",id,on);
   const sc=$("#sheet").scrollTop;openPost(id);$("#sheet").scrollTop=sc;render();if(d.save)toast(on?L("已收藏，在「我的 · 收藏」里找","Saved — find it under Me · Save"):L("已取消收藏","Removed from saved"));return}
  if(d.pedit){closeSheet();openCompose(null,d.pedit);return}
- if(d.pmore){openPostMenu(d.pmore);return}
+ if(d.pmenu){const m=$("#pmenu");if(!m.hidden){closePmenu();return}m.innerHTML=pmenuHTML(d.pmenu,"main");m.hidden=false;t.setAttribute("aria-expanded","true");return}
+ if(d.pmview){$("#pmenu").innerHTML=pmenuHTML(d.pid,d.pmview);return}
+ if(d.pvis){const id=d.pid,o=rawPost(id);if(!o)return;if(S.cloud&&isUuid(id)&&!await cPatchPost(id,{visibility:d.pvis}))return;o.vis=d.pvis;persist();closePmenu();const sc=$("#sheet").scrollTop;openPost(id);$("#sheet").scrollTop=sc;render();toast(d.pvis==="private"?L("已设为仅自己可见","Now visible only to you"):L("已设为公开","Now public"));return}
+ if(d.ppin){const id=d.ppin,o=rawPost(id);if(!o)return;const on=!o.pinned;if(on&&myPosts().filter(x=>x.pinned).length>=3){toast(L("最多置顶 3 篇","You can pin up to 3 notes"));return}if(S.cloud&&isUuid(id)&&!await cPatchPost(id,{pinned:on}))return;o.pinned=on;persist();closePmenu();const sc=$("#sheet").scrollTop;openPost(id);$("#sheet").scrollTop=sc;render();toast(on?L("已置顶到你的主页","Pinned to your profile"):L("已取消置顶","Unpinned"));return}
  if(d.pdel){openDelConfirm(d.pdel);return}
  if(d.pdelok){const id=d.pdelok;t.disabled=true;if(S.cloud&&isUuid(id)){if(!await cDeletePost(id)){t.disabled=false;return}}else{S.mine=S.mine.filter(x=>x.id!==id);persist()}
   S.liked=S.liked.filter(x=>x!==id);S.saved=S.saved.filter(x=>x!==id);closeSheet();render();toast(L("笔记已删除","Note deleted"));return}
@@ -931,7 +950,7 @@ async function loadAll(){if(!sb)return;
  await loadPeople(uids);
  const cnt={};(ls||[]).forEach(l=>cnt[l.post_id]=(cnt[l.post_id]||0)+1);
  const myLikes=S.uid?(ls||[]).filter(l=>l.user_id===S.uid).map(l=>l.post_id):[];
- S.cloudPosts=(ps||[]).map(p=>({id:p.id,ch:p.channel,brand:p.brand_id,c:p.color||0,kicker:p.kicker,cover:p.cover_text||"",title:p.title,body:p.body,user:pname(p.author),uid:p.author,likes:(cnt[p.id]||0)-(myLikes.includes(p.id)?1:0),cloud:true}));
+ S.cloudPosts=(ps||[]).map(p=>({id:p.id,ch:p.channel,brand:p.brand_id,c:p.color||0,kicker:p.kicker,cover:p.cover_text||"",title:p.title,body:p.body,vis:p.visibility||"public",pinned:!!p.pinned,user:pname(p.author),uid:p.author,likes:(cnt[p.id]||0)-(myLikes.includes(p.id)?1:0),cloud:true}));
  ids.forEach(id=>{S.comments[id]=(cs||[]).filter(c=>c.post_id===id).map(c=>({user:pname(c.author),text:c.body,id:c.id}))});
  const local=a=>a.filter(x=>!isUuid(x));
  if(S.uid){const [{data:sv},{data:fl}]=await Promise.all([sb.from("saves").select("post_id").order("created_at",{ascending:false}),sb.from("follows").select("brand_id").order("created_at",{ascending:false})]);
@@ -957,6 +976,7 @@ async function cComment(pid,text){const {data,error}=await sb.from("comments").i
 async function cPost(p){const {data,error}=await sb.from("posts").insert({author:S.uid,channel:p.ch,brand_id:p.brand,kicker:p.kicker,cover_text:p.cover,title:p.title,body:p.body,color:p.c}).select().single();
  if(error){cloudErr(error,"发布");return false}S.cloudPosts.unshift({...p,id:data.id,uid:S.uid,cloud:true,likes:0});return true}
 async function cUpdatePost(id,f){const {error}=await sb.from("posts").update({channel:f.ch,brand_id:f.brand,color:f.c,cover_text:f.cover,title:f.title,body:f.body}).eq("id",id).eq("author",S.uid);if(error){cloudErr(error,"保存");return false}return true}
+async function cPatchPost(id,f){const {error}=await sb.from("posts").update(f).eq("id",id).eq("author",S.uid);if(error){cloudErr(error,"保存");return false}return true}
 async function cDeletePost(id){const {error}=await sb.from("posts").delete().eq("id",id).eq("author",S.uid);if(error){cloudErr(error,"删除");return false}S.cloudPosts=S.cloudPosts.filter(p=>p.id!==id);delete S.comments[id];return true}
 async function cOpenDM(otherId,brand){if(otherId===S.uid){toast(L("这是你自己","That’s you"));return}
  let t=S.threads.find(x=>x.cloud&&x.other===otherId);
