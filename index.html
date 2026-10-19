@@ -956,7 +956,7 @@ const credHTML=()=>S.cloud?`<label>${T("邮箱")}<input type="email" id="oem" re
 async function signUpFlow(pd){
  const email=$("#oem").value.trim(),password=$("#opw").value,btn=document.querySelector("#onb .submit");btn.disabled=true;const lab=btn.textContent;btn.textContent="提交中…";
  S.busyAuth=true;const {file,...rest}=pd;S.pendFile=file||null;try{localStorage.setItem("bc-pending",JSON.stringify(rest))}catch(e){}
- const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:pd.name},emailRedirectTo:siteURL()}});
+ const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:pd.name,lang:S.lang==="en"?"en":"zh"},emailRedirectTo:siteURL()}});
  if(error){S.busyAuth=false;btn.disabled=false;btn.textContent=lab;toast(/registered|exists/i.test(error.message)?"这个邮箱已经注册过，请直接登录":"注册没成功："+error.message);return}
  if(data.session){await loadMe(data.user);await loadAll();S.busyAuth=false;if(pd.role==="user"){finishOnb();toast(T("欢迎来到商链！"))}else openOnb("ok");return}
  S.busyAuth=false;S.pendEmail=email;openOnb("mail")}
