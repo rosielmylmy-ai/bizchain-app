@@ -391,6 +391,8 @@ const stName=k=>S.lang==="en"?STEN[k]:STCN[k];
 
 const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const B=id=>{let b=BRANDS.find(x=>x.id===id);if(!b)return b;if(S.lang==="en"&&b.en)b=Object.assign({},b,b.en);return S.edits&&S.edits[id]?Object.assign({},b,S.edits[id]):b};
+// My own notes: from the database when signed in, otherwise the ones saved in this browser
+const myPosts=()=>S.cloud&&S.uid?posts().filter(p=>p.uid===S.uid):S.mine.map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
 const posts=()=>(S.cloud?[...S.cloudPosts,...SEED]:[...S.mine,...SEED]).map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1800)}
 
@@ -549,7 +551,7 @@ function catURI(name){const bg=PALE[[...String(name||"")].reduce((a,ch)=>a+ch.ch
 function meAv(cls){const me=S.me;return `<span class="${cls} avimg" style="background-image:url(&quot;${me.avatar||catURI(me.name)}&quot;)" role="img" aria-label="${L("我的头像","My avatar")}"></span>`}
 function dotHTML(name,cls){const u=who(name);if(name!==S.me.name&&typeof AVATARS!=="undefined"&&AVATARS[name])return `<i class="${cls} avimg" style="background-image:url(&quot;${AVATARS[name]}&quot;)"></i>`;if(name===S.me.name&&S.me.avatar)return `<i class="${cls} avimg" style="background-image:url(&quot;${S.me.avatar}&quot;)"></i>`;
  if(u.role==="user")return `<i class="${cls} avimg" style="background-image:url(&quot;${catURI(name)}&quot;)"></i>`;return `<i class="${cls}" style="background:${COLORS[name.length%6]}"></i>`}
-function userPageHTML(){const me=S.me,mine=S.mine,likes=mine.reduce((a,p)=>a+(+p.likes||0),0),ints=me.interests||[];
+function userPageHTML(){const me=S.me,mine=myPosts(),likes=mine.reduce((a,p)=>a+likesOf(p),0),ints=me.interests||[];
  return `<div class="bpage"><section class="prof">
  <div class="pcover" style="${me.cover?`background-image:url('${me.cover}')`:`background:linear-gradient(135deg,${PALE[1]},${PALE[3]})`}"></div>
  <div class="prow">${meAv("pav")}
@@ -563,7 +565,7 @@ function userPageHTML(){const me=S.me,mine=S.mine,likes=mine.reduce((a,p)=>a+(+p
  <div class="bpanel">${mePanel()}</div></div>`}
 function myComments(){const out=[];for(const [pid,l] of Object.entries(S.comments))l.forEach((c,i)=>{if(c.user===S.me.name){const p=posts().find(x=>x.id===pid);if(p)out.push({p,text:c.text,i})}});return out.reverse()}
 function mePanel(){const tab=S.meTab||"notes",feed=l=>`<div class="feed">${l.map(cardHTML).join("")}</div>`,empty=t=>`<div class="empty">${t}</div>`;
- if(tab==="notes")return S.mine.length?feed(S.mine):empty(L("你还没有发布笔记，点底部「+」写第一篇。","No notes yet. Tap + to write your first one."));
+ if(tab==="notes"){const m=myPosts();return m.length?feed(m):empty(L("你还没有发布笔记，点底部「+」写第一篇。","No notes yet. Tap + to write your first one."))}
  if(tab==="liked"){const l=S.liked.map(id=>posts().find(p=>p.id===id)).filter(Boolean);return l.length?feed(l):empty(L("还没有赞过笔记。看到有用的内容，点笔记下面的爱心。","No liked notes yet. Tap the heart on a note you find useful."))}
  if(tab==="saved"){const l=S.saved.map(id=>posts().find(p=>p.id===id)).filter(Boolean),bs=S.follows.map(B).filter(Boolean);
   if(!l.length&&!bs.length)return empty(L("还没有收藏。笔记点星星收藏，品牌点「+ 关注」，都会出现在这里。","Nothing saved yet. Notes you star and brands you follow show up here."));
@@ -584,7 +586,7 @@ function openUserEdit(){const me=S.me,stages=["潜在加盟商","正在比较品
  <button class="submit" type="submit">${L("保存","Save")}</button></form>`);
  $("#fav").addEventListener("change",e=>{const f=e.target.files[0];if(f)shrink(f,256,256,u=>{S.draft.avatar=u;$("#edav").innerHTML=`<span class="pav avimg" style="background-image:url('${u}')"></span>`})});
  $("#fcov").addEventListener("change",e=>{const f=e.target.files[0];if(f)shrink(f,1080,400,u=>{S.draft.cover=u;$("#edcover").style.background="";$("#edcover").style.backgroundImage=`url('${u}')`})})}
-function servicePageHTML(){const me=S.me,mine=S.mine,nm=me.org||me.name,items=me.services||[];
+function servicePageHTML(){const me=S.me,mine=myPosts(),nm=me.org||me.name,items=me.services||[];
  return `<div class="bpage"><section class="prof">
  <div class="pcover" style="${me.cover?`background-image:url('${me.cover}')`:`background:linear-gradient(135deg,${COLORS[3]},var(--svc))`}">${S.cloud&&!me.verified?`<span class="pverified no">${L("认证审核中","Under review")}</span>`:`<span class="pverified svcv">✓ ${L(esc(me.svc)+"认证","Verified "+esc(T(me.svc)))}</span>`}</div>
  <div class="prow">${me.avatar?`<span class="pav avimg" style="background-image:url('${me.avatar}')"></span>`:`<span class="pav" style="background:${COLORS[3]}">${esc(nm[0])}</span>`}
