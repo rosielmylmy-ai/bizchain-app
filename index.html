@@ -168,6 +168,11 @@ main{padding:12px 10px}
 .plan.hl{border-color:var(--gold)}
 .rolepick{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:12px;padding:12px 14px}
 [hidden]{display:none!important}
+.pacts{align-items:center}.pown{display:flex;margin-right:auto}.pown .pact{padding:8px 10px}
+.menu{display:flex;flex-direction:column;background:var(--surface);border-radius:12px;overflow:hidden;margin-top:8px}
+.menu button{padding:15px 16px;text-align:left;font-size:15px;border-bottom:1px solid var(--line)}.menu button:last-child{border-bottom:0}
+.menu .danger,.confirm .danger{color:#C0392B}.confirm .submit.danger{background:#C0392B;color:#fff}
+.confirm{display:flex;flex-direction:column;gap:10px;background:var(--surface);border-radius:14px;padding:20px 16px;margin-top:8px}.confirm b{font-size:17px}.confirm p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
 .h1en{font-size:20px;color:var(--muted);font-weight:500}
 .seg{display:flex;background:var(--surface);border-radius:10px;padding:3px;gap:3px}.seg button{flex:1;padding:9px;border-radius:8px;font-size:14px;color:var(--soft)}.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .onbalt{display:flex;justify-content:space-between;margin-top:18px}
@@ -393,6 +398,8 @@ const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const B=id=>{let b=BRANDS.find(x=>x.id===id);if(!b)return b;if(S.lang==="en"&&b.en)b=Object.assign({},b,b.en);return S.edits&&S.edits[id]?Object.assign({},b,S.edits[id]):b};
 // My own notes: from the database when signed in, otherwise the ones saved in this browser
 const myPosts=()=>S.cloud&&S.uid?posts().filter(p=>p.uid===S.uid):S.mine.map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
+const rawPost=id=>(S.cloud?S.cloudPosts:S.mine).find(p=>p.id===id);
+const isMine=p=>!!p&&(S.cloud&&S.uid?p.uid===S.uid:S.mine.some(m=>m.id===p.id));
 const posts=()=>(S.cloud?[...S.cloudPosts,...SEED]:[...S.mine,...SEED]).map(p=>S.lang==="en"&&p.en?Object.assign({},p,p.en):p);
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1800)}
 
@@ -725,21 +732,26 @@ function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  <section class="cmts"><h4>${T("评论")} · ${commentsFor(id).length}</h4>${commentsFor(id).map(c=>`<div class="cmt">${dotHTML(c.user,"cav")}<div><div class="cname">${esc(c.user)}${badge(c.user)}</div><p>${esc(c.text)}</p></div></div>`).join("")||`<p class="warn">${L("还没有评论，来说两句","No comments yet. Be the first.")}</p>`}
  <form id="cmf" data-pid="${id}" class="cform"><input type="text" id="cmi" maxlength="300" placeholder="${L(`以「${esc(S.me.name)}」身份评论`,`Comment as ${esc(S.me.name)}`)}" aria-label="${L("写评论","Write a comment")}" autocomplete="off" required><button type="submit">${T("发送")}</button></form>
  ${S.me.role==="user"?`<p class="warn">${L("认证的品牌方和服务方，评论时会显示认证标志。","Verified brands and pros show a badge on their comments.")}</p>`:""}</section>
- <div class="pacts"><button class="pact${S.liked.includes(id)?" on":""}" data-like="${id}" aria-pressed="${S.liked.includes(id)}" aria-label="${L("点赞","Like")}">${HEART.replace(/14/g,"22")}<span>${likesOf(p)}</span></button>
+ <div class="pacts">${isMine(p)?`<span class="pown"><button class="pact" data-pedit="${id}" aria-label="${L("编辑","Edit")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>${L("编辑","Edit")}</span></button><button class="pact" data-pmore="${id}" aria-label="${L("更多","More")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button></span>`:""}<button class="pact${S.liked.includes(id)?" on":""}" data-like="${id}" aria-pressed="${S.liked.includes(id)}" aria-label="${L("点赞","Like")}">${HEART.replace(/14/g,"22")}<span>${likesOf(p)}</span></button>
  <button class="pact${S.saved.includes(id)?" on":""}" data-save="${id}" aria-pressed="${S.saved.includes(id)}" aria-label="${T("收藏")}">${SAVEI}<span>${S.saved.includes(id)?T("已收藏"):T("收藏")}</span></button>
  <button class="pact" data-tocmt="1" aria-label="${T("评论")}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 5h14v11H9l-4 3z"/></svg><span>${commentsFor(id).length}</span></button></div>`)}
 
-function openCompose(pre){S.color=pre?B(pre).c:0;
- openSheet(`<div class="sbar"><button class="back" data-close>‹ ${L("取消","Cancel")}</button><span style="font-size:12px;color:var(--muted)">${L("发布笔记","New note")}</span></div>
- <form id="cf"><label>${L("封面大字（换行用回车）","Cover text (press Enter for a new line)")}<textarea id="fc" style="min-height:70px" maxlength="30" placeholder="${L("比如：加盟费1万刀\n但总部拿走一半","e.g. $10K franchise fee\nbut half goes to HQ")}" required></textarea></label>
+function openCompose(pre,editId){const ed=editId?rawPost(editId):null;S.color=ed?ed.c%6:pre?B(pre).c:0;if(ed)pre=ed.brand||"";
+ openSheet(`<div class="sbar"><button class="back" data-close>‹ ${L("取消","Cancel")}</button><span style="font-size:12px;color:var(--muted)">${ed?L("编辑笔记","Edit note"):L("发布笔记","New note")}</span></div>
+ <form id="cf" data-edit="${ed?ed.id:""}"><label>${L("封面大字（换行用回车）","Cover text (press Enter for a new line)")}<textarea id="fc" style="min-height:70px" maxlength="30" placeholder="${L("比如：加盟费1万刀\n但总部拿走一半","e.g. $10K franchise fee\nbut half goes to HQ")}" required>${ed?esc(ed.cover):""}</textarea></label>
  <label>${L("封面颜色","Cover color")}<div class="swatches">${PALE.map((c,i)=>`<button type="button" data-sw="${i}" aria-label="${L("颜色","Color")} ${i+1}" aria-pressed="${i===S.color}" style="background:${c}"></button>`).join("")}</div></label>
- <label>${L("标题","Title")}<input type="text" id="ft" maxlength="60" required placeholder="${L("一句话说清楚你要讲什么","Say what it's about in one line")}"></label>
- <label>${L("正文","Body")}<textarea id="fb" required placeholder="${L("分享你的看法、经历或FDD解读","Share your view, experience or FDD analysis")}"></textarea></label>
+ <label>${L("标题","Title")}<input type="text" id="ft" maxlength="60" required placeholder="${L("一句话说清楚你要讲什么","Say what it's about in one line")}" value="${ed?esc(ed.title):""}"></label>
+ <label>${L("正文","Body")}<textarea id="fb" required placeholder="${L("分享你的看法、经历或FDD解读","Share your view, experience or FDD analysis")}">${ed?esc(ed.body):""}</textarea></label>
  <div class="lbl">${L("关联品牌（选填，读者可一键查看 FDD）","Linked brand (optional — readers can open its FDD)")}${pickerHTML("fbr",pre||"",false)}</div>
- <label>${L("频道","Channel")}<select id="fch">${["投资人","品牌方","法规"].map(x=>`<option value="${x}">${T(x)}</option>`).join("")}</select></label>
- <button class="submit" type="submit">${L("发布","Post")}</button></form>`)}
+ <label>${L("频道","Channel")}<select id="fch">${["投资人","品牌方","法规"].map(x=>`<option value="${x}"${ed&&ed.ch===x?" selected":""}>${T(x)}</option>`).join("")}</select></label>
+ <button class="submit" type="submit">${ed?L("保存修改","Save changes"):L("发布","Post")}</button></form>`)}
+function openPostMenu(id){openSheet(`<div class="sbar"><button class="back" data-post="${id}">‹ ${T("返回")}</button><span></span></div>
+ <div class="menu"><button data-pedit="${id}">${L("编辑笔记","Edit note")}</button><button class="danger" data-pdel="${id}">${L("删除笔记","Delete note")}</button></div>`)}
+function openDelConfirm(id){openSheet(`<div class="sbar"><button class="back" data-post="${id}">‹ ${L("取消","Cancel")}</button><span></span></div>
+ <div class="confirm"><b>${L("删除这篇笔记？","Delete this note?")}</b><p>${L("删除后，笔记、评论和点赞都会一起删掉，不能恢复。","The note, its comments and likes will be removed. This can't be undone.")}</p>
+ <button class="submit danger" data-pdelok="${id}">${L("删除","Delete")}</button><button class="dm" data-post="${id}" style="padding:11px;border-radius:10px">${L("取消","Cancel")}</button></div>`)}
 
-document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
  if(t.id==="tact"){if(t.dataset.act==="search"){S.searchOpen=!S.searchOpen;if(!S.searchOpen){S.q="";$("#q").value=""}render();if(S.searchOpen)$("#q").focus()}else if(t.dataset.act==="settings")openSettings();return}
  if(d.onb){openOnb(d.onb);return}
  if(d.onbdone){finishOnb();return}
@@ -755,6 +767,11 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  if(d.like||d.save){const k=d.like?"liked":"saved",id=d.like||d.save;if(S.cloud&&isUuid(id)&&needAuth(d.like?L("登录后才能点赞","Log in to like"):L("登录后才能收藏","Log in to save")))return;const on=!S[k].includes(id);S[k]=on?[id,...S[k]]:S[k].filter(x=>x!==id);persist();
   if(S.cloud&&isUuid(id))cToggle(d.like?"likes":"saves","post_id",id,on);
   const sc=$("#sheet").scrollTop;openPost(id);$("#sheet").scrollTop=sc;render();if(d.save)toast(on?L("已收藏，在「我的 · 收藏」里找","Saved — find it under Me · Save"):L("已取消收藏","Removed from saved"));return}
+ if(d.pedit){closeSheet();openCompose(null,d.pedit);return}
+ if(d.pmore){openPostMenu(d.pmore);return}
+ if(d.pdel){openDelConfirm(d.pdel);return}
+ if(d.pdelok){const id=d.pdelok;t.disabled=true;if(S.cloud&&isUuid(id)){if(!await cDeletePost(id)){t.disabled=false;return}}else{S.mine=S.mine.filter(x=>x.id!==id);persist()}
+  S.liked=S.liked.filter(x=>x!==id);S.saved=S.saved.filter(x=>x!==id);closeSheet();render();toast(L("笔记已删除","Note deleted"));return}
  if(d.tocmt){const i=$("#cmi");if(i){i.scrollIntoView({block:"center"});i.focus()}return}
  if(d.follow){const id=d.follow;if(needAuth(L("登录后才能关注品牌","Log in to follow brands")))return;const on=!S.follows.includes(id);S.follows=on?[id,...S.follows]:S.follows.filter(x=>x!==id);persist();if(S.cloud)cToggle("follows","brand_id",id,on);t.textContent=on?T("已关注"):T("+ 关注");t.classList.toggle("ghost",on);toast(on?L(`已关注 ${B(id).name}，在「我的 · 收藏」里找`,`Following ${B(id).name}`):L("已取消关注","Unfollowed"));if(S.nav==="me")render();return}
  if(d.mtab){S.meTab=d.mtab;render();return}
@@ -810,6 +827,10 @@ document.addEventListener("submit",async e=>{const fid=e.target.id;
  if(e.target.id==="mf"){e.preventDefault();const t=S.threads.find(x=>x.id===S.thread),v=$("#mi").value.trim();if(!t||!v)return;if(t.cloud&&!await cSend(t,v))return;
   t.msgs.push({me:true,t:v});t.time=L("刚刚","now");S.threads=[t,...S.threads.filter(x=>x!==t)];persist();render();openThread(t.id);$("#mi").focus();return}
  if(e.target.id!=="cf")return;e.preventDefault();
+ const editId=e.target.dataset.edit;
+ if(editId){const o=rawPost(editId);if(!o)return;const f={ch:$("#fch").value,brand:$("#fbr").value||null,c:S.color,cover:$("#fc").value.trim(),title:$("#ft").value.trim(),body:$("#fb").value.trim()};
+  if(S.cloud){const b=e.target.querySelector(".submit");b.disabled=true;b.textContent=L("保存中…","Saving…");if(!await cUpdatePost(editId,f)){b.disabled=false;b.textContent=L("保存修改","Save changes");return}}
+  Object.assign(o,f);persist();openPost(editId);render();toast(L("已保存修改","Changes saved"));return}
  const p={id:"m"+Date.now(),ch:$("#fch").value,brand:$("#fbr").value||null,c:S.color,kicker:"NOTE",cover:$("#fc").value.trim(),title:$("#ft").value.trim(),body:$("#fb").value.trim(),user:S.me.name,likes:0};
  if(S.cloud){const b=e.target.querySelector(".submit");b.disabled=true;b.textContent=L("发布中…","Posting…");if(!await cPost(p)){b.disabled=false;b.textContent=L("发布","Post");return}}else S.mine.unshift(p);
  persist();closeSheet();S.nav="feed";S.tab="推荐";render();window.scrollTo(0,0);toast(L("已发布","Posted"))});
@@ -845,7 +866,7 @@ const pname=id=>(S.people[id]||{}).name||L("用户","User");
 const GUEST=()=>({name:L("游客","Guest"),role:"user"});
 function fmtTime(ts){const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return d.toTimeString().slice(0,5);const days=Math.floor((n-d)/864e5);return days<7?(S.lang==="en"?["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]:["周日","周一","周二","周三","周四","周五","周六"])[d.getDay()]:`${d.getMonth()+1}/${d.getDate()}`}
 function needAuth(msg){if(S.cloud&&!S.uid){toast(msg||L("登录后才能操作","Please log in first"));closeSheet();openOnb("login");return true}return false}
-function cloudErr(e,what){console.error(what,e);toast(L((what||"操作")+"没成功：","Couldn’t "+({"同步":"sync","评论":"comment","发布":"post","发起私信":"start the chat","发送":"send","保存":"save","上传":"upload"}[what]||"do that")+": ")+((e&&e.message)||L("网络问题，稍后再试","network problem, try again later")))}
+function cloudErr(e,what){console.error(what,e);toast(L((what||"操作")+"没成功：","Couldn’t "+({"同步":"sync","评论":"comment","发布":"post","发起私信":"start the chat","发送":"send","保存":"save","上传":"upload","删除":"delete"}[what]||"do that")+": ")+((e&&e.message)||L("网络问题，稍后再试","network problem, try again later")))}
 const siteURL=()=>location.href.split("#")[0].split("?")[0];
 
 async function cloudInit(){
@@ -935,6 +956,8 @@ async function cComment(pid,text){const {data,error}=await sb.from("comments").i
  (S.comments[pid]=S.comments[pid]||[]).push({user:S.me.name,text,id:data.id});return true}
 async function cPost(p){const {data,error}=await sb.from("posts").insert({author:S.uid,channel:p.ch,brand_id:p.brand,kicker:p.kicker,cover_text:p.cover,title:p.title,body:p.body,color:p.c}).select().single();
  if(error){cloudErr(error,"发布");return false}S.cloudPosts.unshift({...p,id:data.id,uid:S.uid,cloud:true,likes:0});return true}
+async function cUpdatePost(id,f){const {error}=await sb.from("posts").update({channel:f.ch,brand_id:f.brand,color:f.c,cover_text:f.cover,title:f.title,body:f.body}).eq("id",id).eq("author",S.uid);if(error){cloudErr(error,"保存");return false}return true}
+async function cDeletePost(id){const {error}=await sb.from("posts").delete().eq("id",id).eq("author",S.uid);if(error){cloudErr(error,"删除");return false}S.cloudPosts=S.cloudPosts.filter(p=>p.id!==id);delete S.comments[id];return true}
 async function cOpenDM(otherId,brand){if(otherId===S.uid){toast(L("这是你自己","That’s you"));return}
  let t=S.threads.find(x=>x.cloud&&x.other===otherId);
  if(!t){const {data,error}=await sb.from("conversations").insert({a:S.uid,b:otherId,brand_id:brand||null}).select().single();if(error){cloudErr(error,"发起私信");return}
