@@ -326,6 +326,7 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .composer button{background:var(--seal);color:#fff;border-radius:999px;padding:0 16px;font-weight:500}
 .dm{font-size:14px;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
 @media (prefers-reduced-motion:no-preference){.card,.brow{transition:transform .15s}.card:active,.brow:active{transform:scale(.98)}}
+.bbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px}.bbar::-webkit-scrollbar{display:none}.bbar .bsel,.bbar .bchip{flex:none}.bbar .bchip{display:inline-flex;align-self:center;overflow:visible}.bbar .bsel select{padding:6px 6px;max-width:122px;font-size:12.5px}.bbar .bchip{font-size:12.5px;padding:6px 10px}.bbar .bsel span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -461,8 +462,8 @@ function render(){renderTabs();renderTop();renderNav();
   list.sort(SORT[S.bsort]||SORT.units);const total=list.length;list=list.slice(0,S.blimit).map(b=>B(b.id));
   v.innerHTML=`<div class="fwrap"><button class="farrow l" data-fscroll="-1" aria-label="${L("向左滑","Scroll left")}" hidden>‹</button><div class="filters" id="filters" role="group" aria-label="${L("行业分类","Categories")}">${cats.map(c=>`<button data-cat="${c}" aria-pressed="${S.brandCat===c}">${T(c)}<small>${n(c)}</small></button>`).join("")}</div><button class="farrow r" data-fscroll="1" aria-label="${L("向右滑","Scroll right")}">›</button></div>
   <div class="bbar"><label class="bsel"><span>${L("排序","Sort")}</span><select id="bsort">${[["units",L("门店最多","Most units")],["growth",L("增长最快","Fastest growing")],["fee",L("加盟费最低","Lowest fee")],["invest",L("投资最低","Lowest investment")]].map(([k,l])=>`<option value="${k}"${S.bsort===k?" selected":""}>${l}</option>`).join("")}</select></label>
-  <label class="bsel"><span>${L("投资","Investment")}</span><select id="binv">${INV.map(([k,zh,en])=>`<option value="${k}"${S.binv===k?" selected":""}>${L(zh,en)}</option>`).join("")}</select></label>
-  <button class="bchip" data-bfpr aria-pressed="${!!S.bfpr}">${L("有收入数据","Has sales data")}</button></div>
+  <label class="bsel"><span>${L("投资","Invest")}</span><select id="binv">${INV.map(([k,zh,en])=>`<option value="${k}"${S.binv===k?" selected":""}>${L(zh,en)}</option>`).join("")}</select></label>
+  <button class="bchip" data-bfpr aria-pressed="${!!S.bfpr}">${L("有收入数据","Sales data")}</button></div>
   <p class="bcount">${L(`共 ${total.toLocaleString()} 个品牌`,`${total.toLocaleString()} brands`)}</p>
   <div class="blist">${list.map(b=>`<button class="brow" data-brand="${b.id}">${avHTML(b)}<span><h3>${esc(b.name)}</h3><p>${esc(b.cn)} · ${esc(b.units)} ${L("家","units")}${b.units_change?` <i class="${b.units_change>0?"up":"down"}">${b.units_change>0?"+":""}${b.units_change.toLocaleString()}</i>`:""}</p></span><span class="fig">${esc(shortFee(b.fee))}<small>${T("加盟费")}</small></span></button>`).join("")+(total>list.length?`<button class="bmore" data-bmore>${L(`显示更多（还有 ${(total-list.length).toLocaleString()} 个）`,`Show more (${(total-list.length).toLocaleString()} left)`)}</button>`:"")||`<div class="empty">${q?L("没有匹配的品牌","No matching brands"):L("「"+esc(S.brandCat)+"」还没有收录品牌","No brands in "+T(S.brandCat)+" yet")}</div>`}</div>
   <p class="note">${L(`数据来源：威斯康星州 DFI 备案的 2026 年 FDD · 已收录 ${BRANDS.length} 个品牌`,`Source: 2026 FDDs filed with Wisconsin DFI · ${BRANDS.length} brands`)}</p>`;setupFilters()}
@@ -473,7 +474,7 @@ function render(){renderTabs();renderTop();renderNav();
  else if(S.nav==="me"&&S.me.role==="service"){v.innerHTML=pendBar()+servicePageHTML()}
  else if(S.nav==="me"){v.innerHTML=pendBar()+userPageHTML()}
 }
-const INV=[["all","不限","Any"],["lt100","10 万美元以下","Under $100K"],["100-250","10–25 万美元","$100K–$250K"],["250-500","25–50 万美元","$250K–$500K"],["500-1m","50–100 万美元","$500K–$1M"],["gt1m","100 万美元以上","Over $1M"]];
+const INV=[["all","投资不限","Any budget"],["lt100","10 万美元以下","Under $100K"],["100-250","10–25 万美元","$100K–$250K"],["250-500","25–50 万美元","$250K–$500K"],["500-1m","50–100 万美元","$500K–$1M"],["gt1m","100 万美元以上","Over $1M"]];
 const INVR={lt100:[0,1e5],"100-250":[1e5,2.5e5],"250-500":[2.5e5,5e5],"500-1m":[5e5,1e6],gt1m:[1e6,1e12]};
 const nz=v=>v==null?1e12:v,gr=b=>b.units_change==null||!b.units_total?-1e9:b.units_change/Math.max(1,b.units_total-b.units_change);
 function invOk(b){const r=INVR[S.binv];if(!r)return true;const lo=b.invest_low;return lo!=null&&lo>=r[0]&&lo<r[1]}
@@ -527,7 +528,7 @@ async function sharePage(key){const [k,id]=key.split("/"),url=location.href.spli
 
 function openThread(id){const t=S.threads.find(x=>x.id===id);if(!t)return;t.unread=false;persist();S.thread=id;const b=t.brand&&B(t.brand);
  openSheet(`<div class="sbar"><button class="back" data-close>‹ ${T("私信")}</button><b style="font-size:15px">${esc(t.name)}${badge(t.name,true)}</b><span style="width:48px"></span></div>
- <div class="chat" id="chat">${b?`<span class="ctx">${L("对方在看这个品牌","About this brand")}</span><button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>${T("加盟费")} ${esc(b.fee)} · ${L("投资","Investment")} ${esc(b.invest)}</small></span><span class="go">FDD ›</span></button>`:""}
+ <div class="chat" id="chat">${b?`<span class="ctx">${L("对方在看这个品牌","About this brand")}</span><button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>${T("加盟费")} ${esc(b.fee)} · ${L("投资","Invest")} ${esc(b.invest)}</small></span><span class="go">FDD ›</span></button>`:""}
  ${t.msgs.length?t.msgs.map(m=>`<div class="bub ${m.me?"me":"them"}">${esc(S.lang==="en"&&m.en?m.en:m.t)}</div>`).join(""):`<span class="ctx">${L("打个招呼吧","Say hello")}</span>`}</div>
  <div class="composer"><form id="mf"><input type="text" id="mi" placeholder="${L("发消息…","Message…")}" aria-label="${L("消息","Message")}" autocomplete="off" required><button type="submit">${T("发送")}</button></form></div>`);
  $("#sheet").scrollTop=$("#sheet").scrollHeight}
@@ -773,7 +774,7 @@ function openPost(id){const p=posts().find(x=>x.id===id),b=p.brand&&B(p.brand);
  <article class="post"><div class="cover bigcover" style="background:${PALE[p.c%6]}"><span class="kicker">${esc(p.kicker||"NOTE")}</span>${esc(p.cover).replace(/\n/g,"<br>")}</div>
  ${p.vis==="private"?`<p class="privnote">${L("仅自己可见 · 别人看不到这篇笔记","Only me · no one else can see this note")}</p>`:""}<h1>${esc(p.title)}</h1><div class="meta" style="margin-bottom:12px"><span class="av">${dotHTML(p.user,"")}<span>${esc(p.user)}</span>${badge(p.user)}</span></div>
  <div class="txt">${esc(p.body)}</div>
- ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>${T("加盟费")} ${esc(b.fee)} · ${L("投资","Investment")} ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>
+ ${b?`<button class="linkcard" data-brand="${b.id}">${avHTML(b)}<span><b>${esc(b.name)}</b><small>${T("加盟费")} ${esc(b.fee)} · ${L("投资","Invest")} ${esc(b.invest)} · ${esc(b.units)}</small></span><span class="go">FDD ›</span></button>`:""}</article>
  <section class="cmts"><h4>${T("评论")} · ${commentsFor(id).length}</h4>${commentsFor(id).map(c=>`<div class="cmt">${dotHTML(c.user,"cav")}<div><div class="cname">${esc(c.user)}${badge(c.user)}</div><p>${esc(c.text)}</p></div></div>`).join("")||`<p class="warn">${L("还没有评论，来说两句","No comments yet. Be the first.")}</p>`}
  <form id="cmf" data-pid="${id}" class="cform"><input type="text" id="cmi" maxlength="300" placeholder="${L(`以「${esc(S.me.name)}」身份评论`,`Comment as ${esc(S.me.name)}`)}" aria-label="${L("写评论","Write a comment")}" autocomplete="off" required><button type="submit">${T("发送")}</button></form>
  ${S.me.role==="user"?`<p class="warn">${L("认证的品牌方和服务方，评论时会显示认证标志。","Verified brands and pros show a badge on their comments.")}</p>`:""}</section>
