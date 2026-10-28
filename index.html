@@ -238,7 +238,6 @@ main{padding:12px 10px}
 .mseg button{flex:1;font-size:12.5px;padding:6px 4px;border-radius:7px;color:var(--muted);background:none}
 .mseg button.on{background:var(--bg);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .mseg button.fr.on{color:#B42A3D}.mseg button.co.on{color:#1F4E9C}
-.tile.hasco{position:relative}.tile.hasco::after{content:"";position:absolute;bottom:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#1F4E9C;box-shadow:0 0 0 1px #fff}
 .mlegend .mco{display:flex;align-items:center;gap:4px;margin-left:8px}.mlegend .mco i{width:7px;height:7px;border-radius:50%;background:#1F4E9C}
 .mnote{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink);background:var(--surface);border-radius:8px;padding:8px 10px}
 .pstats.ps3{grid-template-columns:repeat(3,1fr)}
@@ -578,18 +577,18 @@ function mapNotes(b,F,C){const st=b.states,n=[],y=st.year,fmt=x=>Number(x).toLoc
 function mapHTML(b,mode){const st=b.states;if(!st)return "";const all=stateCounts(b);
  const F=Object.values(all).reduce((a,x)=>a+x.f,0),C=Object.values(all).reduce((a,x)=>a+x.c,0),notes=mapNotes(b,F,C);
  if(!F&&!C)return notes.length?`<div class="usmap mapwrap"><div class="mhead"><b>${T("门店分布")}</b></div>${notes.map(x=>`<p class="mnote">${x}</p>`).join("")}</div>`:"";
- mode=mode||(F&&C?"all":F?"fr":"co");const key=mode==="fr"?"f":mode==="co"?"c":"t",pal=mode==="co"?CBINS:BINS;
+ mode=mode||(F&&C?(C>F*2?"co":"all"):F?"fr":"co");const key=mode==="fr"?"f":mode==="co"?"c":"t",pal=mode==="co"?CBINS:BINS;
  const vals=Object.values(all).map(x=>x[key]).filter(x=>x>0).sort((a,z)=>a-z);
  const q=i=>vals[Math.min(vals.length-1,Math.floor(vals.length*i/5))],cuts=vals.length?[q(1),q(2),q(3),q(4)]:[];
  const bin=t=>t<=0?-1:cuts.filter(c=>t>c).length,n=Object.values(all).filter(x=>x.t>0).length;
  const top=Object.entries(all).filter(([,x])=>x[key]>0).sort((a,z)=>z[1][key]-a[1][key]).slice(0,5);
- const tiles=Object.entries(TILES).map(([k,[r,c]])=>{const x=all[k],v=x[key],i=bin(v),dot=mode==="all"&&x.c>0;return `<button class="tile${i>=3?" dk":""}${dot?" hasco":""}" style="grid-row:${r+1};grid-column:${c+1};background:${i<0?"var(--surface)":pal[i]}" data-st="${k}" data-bid="${b.id}" aria-label="${stName(k)} ${L(`加盟 ${x.f} 直营 ${x.c}`,`${x.f} franchised, ${x.c} company-owned`)}"><b>${k}</b><span>${v||""}</span></button>`}).join("");
+ const tiles=Object.entries(TILES).map(([k,[r,c]])=>{const x=all[k],v=x[key],i=bin(v);return `<button class="tile${i>=3?" dk":""}" style="grid-row:${r+1};grid-column:${c+1};background:${i<0?"var(--surface)":pal[i]}" data-st="${k}" data-bid="${b.id}" aria-label="${stName(k)} ${L(`加盟 ${x.f} 直营 ${x.c}`,`${x.f} franchised, ${x.c} company-owned`)}"><b>${k}</b><span>${v||""}</span></button>`}).join("");
  const seg=F&&C?`<div class="mseg" role="group" aria-label="${L("门店类型","Store type")}">${[["all",L("全部","All")],["fr",L("加盟店","Franchised")],["co",L("直营店","Company-owned")]].map(([m,l])=>`<button class="${m}${m===mode?" on":""}" data-mapmode="${m}" data-bid="${b.id}" aria-pressed="${m===mode}">${l}</button>`).join("")}</div>`:"";
  const head=L(`${F?`加盟 ${F.toLocaleString()} 家`:""}${F&&C?" · ":""}${C?`直营 ${C.toLocaleString()} 家`:""} · ${n} 个州（${st.year} 年底）`,`${F?`${F.toLocaleString()} franchised`:""}${F&&C?" · ":""}${C?`${C.toLocaleString()} company-owned`:""} · ${n} states (end of ${st.year})`);
  const tname=mode==="fr"?L("加盟店","franchised"):mode==="co"?L("直营店","company-owned"):L("门店","stores");
  return `<div class="usmap mapwrap"><div class="mhead"><b>${T("门店分布")}</b><span>${head}</span></div>${seg}
  <div class="tiles">${tiles}</div>
- <div class="mlegend"><span>${L("少","Fewer")}</span>${pal.map(c=>`<i style="background:${c}"></i>`).join("")}<span>${L("多","More")}</span>${mode==="all"&&C?`<span class="mco"><i></i>${L("有直营店","Has company-owned")}</span>`:""}<span class="m0"><i></i>${L("无","None")}</span></div>
+ <div class="mlegend"><span>${L("少","Fewer")}</span>${pal.map(c=>`<i style="background:${c}"></i>`).join("")}<span>${L("多","More")}</span><span class="m0"><i></i>${L("无","None")}</span></div>
  <p class="stinfo" id="stinfo" aria-live="polite">${L("点一个州看具体数字","Tap a state to see its numbers")}</p>
  <h5 class="gt">${L(`${tname}最多的州`,`Top states · ${tname}`)}</h5><div class="items">${top.map(([k,x],i)=>`<div class="item"><div class="ihead"><span class="lab">${i+1}. ${stName(k)}</span><span class="val">${x[key].toLocaleString()} ${L("家","units")}</span></div>${mode==="all"&&x.c&&x.f?`<small class="isub">${L("加盟","Franchised")} ${x.f.toLocaleString()} · ${L("直营","Company-owned")} ${x.c.toLocaleString()}</small>`:""}</div>`).join("")}</div>
  ${notes.map(x=>`<p class="mnote">${x}</p>`).join("")}
