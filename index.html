@@ -768,7 +768,7 @@ function brandPageHTML(id){const b=B(id);const rel=posts().filter(p=>p.brand===i
  if(op&&op[1])rows.push(["ITEM 11",L("签约到开业","Signing to opening"),"",op[0]===op[1]?L(`约 ${op[0]} 个月`,`About ${op[0]} months`):L(`约 ${op[0]}–${op[1]} 个月`,`About ${op[0]}–${op[1]} months`)]);
  return `<div class="bpage" data-bid="${esc(b.id)}">
  <section class="prof">
-  <div class="pcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}">${brandVerified(b.id)?`<span class="pverified">✓ ${T("品牌认证")}</span>`:`<span class="pverified no">${T("未认证")}</span>`}</div>
+  <div class="pcover" style="${b.cover?`background-image:url('${b.cover}')`:`background:linear-gradient(135deg,${COLORS[b.c]},var(--gold))`}">${brandVerified(b.id)?`<span class="pverified">✓ ${T("品牌认证")}</span>`:""}</div>
   <div class="prow">${avHTML(b,"pav")}
    <div class="pid"><h2>${esc(b.name)}</h2><p>${esc(b.cn)} · ${esc(T(b.cat))}</p></div>
    ${canEdit(b.id)?`<button class="follow" data-bedit="${b.id}">${T("编辑主页")}</button>`:`<button class="follow${S.follows.includes(b.id)?" ghost":""}" data-follow="${b.id}">${S.follows.includes(b.id)?T("已关注"):T("+ 关注")}</button>`}</div>
@@ -777,11 +777,11 @@ function brandPageHTML(id){const b=B(id);const rel=posts().filter(p=>p.brand===i
   <button class="more" data-bio aria-expanded="false" >${T("展开")}</button>
   <div class="ptags">${(b.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join("")}<span class="src">${esc(b.fdd_year)} FDD</span></div>
  </section>
- <nav class="jump" role="tablist" aria-label="${L("品牌信息","Brand info")}">${[["fee","费用"],["units","门店"],["rev","收入"],["idea","理念"],["sim","同类"],["notes","笔记"]].map(([k,l],i)=>`<button role="tab" data-btab="${k}" aria-selected="${i===0}">${T(l)}</button>`).join("")}</nav>
+ <nav class="jump" role="tablist" aria-label="${L("品牌信息","Brand info")}">${[["fee","费用"],["units","门店"],["rev","收入"],...(brandVerified(b.id)?[["idea","理念"]]:[]),["sim","同类"],["notes","笔记"]].map(([k,l],i)=>`<button role="tab" data-btab="${k}" aria-selected="${i===0}">${T(l)}</button>`).join("")}</nav>
  <div class="sec bpanel" data-panel="fee"><h4>${T("费用与投资 · FDD 关键条款")}</h4><div class="items">${rows.map(r=>`<div class="item"><div class="ihead"><span class="lab">${r[1]}</span><span class="no">${r[0]}</span></div><div class="val">${esc(r[3])}</div>${r[2]?`<small class="isub">${esc(r[2])}</small>`:""}</div>`).join("")}</div>${b.lite?`<p class="warn loadnote">${S.cloud?L("正在加载完整数据…","Loading full details…"):L("这个品牌的完整数据需要联网查看","Connect to the internet to see this brand's full details")}</p>`:""}${b.note?`<p class="warn">${L("另外：","Also: ")}${esc(b.note)}</p>`:""}<p class="warn">${L(`来源：${esc(b.fdd_year)} 年 FDD，${esc(b.source)}`,`Source: ${esc(b.fdd_year)} FDD, ${esc(b.source)}`)}</p></div>
  <div class="sec bpanel" data-panel="units" hidden><h4>${T("门店变化 · ITEM 20")}</h4>${trendHTML(b)}${act}<div style="margin-top:18px">${mapHTML(b)}</div></div>
  <div class="sec bpanel" data-panel="rev" hidden><h4>${T("收入披露 · ITEM 19")}</h4>${revHTML(b)}</div>
- <div class="sec bpanel" data-panel="idea" hidden><h4>${T("品牌理念")}</h4>${ideaHTML(b)}</div>
+ ${brandVerified(b.id)?`<div class="sec bpanel" data-panel="idea" hidden><h4>${T("品牌理念")}</h4>${ideaHTML(b)}</div>`:""}
  <div class="sec bpanel" data-panel="sim" hidden><h4>${L("同类品牌","Similar brands")} · ${esc(T(b.cat))}</h4>${simHTML(b)}</div>
  <div class="bpanel" data-panel="notes" hidden><div class="sec"><h4>${L("相关笔记","Related notes")} · ${rel.length}</h4>${rel.length?`<div class="feed">${rel.map(cardHTML).join("")}</div>`:`<div class="empty" style="padding:20px">${L("还没有人写这个品牌","No notes about this brand yet")}</div>`}</div>
  <button class="submit" style="width:100%;margin-top:14px" data-compose="${b.id}">${L(`写一篇关于 ${esc(b.name)} 的笔记`,`Write a note about ${esc(b.name)}`)}</button>
